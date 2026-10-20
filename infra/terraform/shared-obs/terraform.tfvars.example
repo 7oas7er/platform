@@ -1,6 +1,0 @@
-stack_slug = "joyfulraspberry90"
-
-cloud_access_policy_token  = "glc_…"
-cloudflare_analytics_token = "…"   # Zone Analytics Read
-
-# github_plugin_version = "2.9.3"

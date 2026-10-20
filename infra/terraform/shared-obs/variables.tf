@@ -9,6 +9,17 @@ variable "cloud_access_policy_token" {
   sensitive   = true
 }
 
+variable "stack_service_account_token" {
+  description = <<-EOT
+    Grafana stack service account token (Admin) for the stack provider.
+    After creating grafana_cloud_stack_service_account_token.terraform, set this to
+    that token (terraform output -raw stack_service_account_token). For bootstrap
+    you may temporarily use another Admin stack SA token (e.g. block-drop-terraform).
+  EOT
+  type        = string
+  sensitive   = true
+}
+
 variable "cloudflare_analytics_token" {
   description = "Cloudflare API token with Zone Analytics Read for Infinity GraphQL."
   type        = string

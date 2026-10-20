@@ -58,22 +58,35 @@ terraform apply  # after DNS-only code is merged
 
 ## 4. shared-obs — import Infinity + GitHub plugin
 
+The plugin resource has **no** `count` (address is `.github`, not `.github[0]`).
+The stack provider needs `stack_service_account_token` in tfvars up front (cannot
+depend on the token resource — that blocks import). Bootstrap with any Admin stack
+SA token, then switch to `platform-terraform` after it is created.
+
 ```bash
 cd ../shared-obs
-cp terraform.tfvars.example terraform.tfvars   # stack_slug, tokens, CF analytics token
+cp terraform.tfvars.example terraform.tfvars
+# Fill stack_slug, cloud_access_policy_token, cloudflare_analytics_token,
+# and stack_service_account_token (temporarily: Block Drop's stack SA token is fine).
 terraform init
-```
 
-After stack SA exists (first apply may create SA then import DS), or import DS by uid once SA/auth works:
+# 1) Create platform-terraform SA + token (cloud provider only)
+terraform apply \
+  -target=grafana_cloud_stack_service_account.terraform \
+  -target=grafana_cloud_stack_service_account_token.terraform
 
-```bash
-# Plugin (pin matches live install)
-terraform import 'grafana_cloud_plugin_installation.github[0]' joyfulraspberry90:grafana-github-datasource
+# 2) Put the new token in tfvars (replace the temporary one)
+terraform output -raw stack_service_account_token
+# → stack_service_account_token = "…" in terraform.tfvars
 
-# Infinity DS uid (provider id form is typically <orgId>:<uid> — confirm with grafana provider docs / state from Block Drop)
-# From Block Drop grafana state before rm:
-#   terraform state show 'grafana_data_source.cloudflare_infinity[0]'
-terraform import 'grafana_data_source.cloudflare_infinity[0]' '<id-from-block-drop-state>'
+# 3) Import shared objects (no [0] on the plugin)
+terraform import grafana_cloud_plugin_installation.github \
+  joyfulraspberry90:grafana-github-datasource
+terraform import grafana_data_source.cloudflare_infinity \
+  '1:infinity-cloudflare'
+
+terraform plan   # expect empty / trivial; must NOT create Infinity or reinstall plugin
+terraform apply
 ```
 
 In Block Drop `infra/terraform/grafana` after shared-obs owns them:

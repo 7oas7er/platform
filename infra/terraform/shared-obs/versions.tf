@@ -22,8 +22,11 @@ provider "grafana" {
   cloud_access_policy_token = var.cloud_access_policy_token
 }
 
+# Stack provider must not depend on the SA token resource (that blocks import / first
+# apply). Set stack_service_account_token after creating the platform-terraform SA
+# (see docs/MIGRATION.md), or temporarily use any Admin stack SA token.
 provider "grafana" {
   alias = "stack"
   url   = data.grafana_cloud_stack.platform.url
-  auth  = grafana_cloud_stack_service_account_token.terraform.key
+  auth  = var.stack_service_account_token
 }

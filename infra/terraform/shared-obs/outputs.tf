@@ -3,6 +3,12 @@ output "grafana_stack_url" {
   value       = data.grafana_cloud_stack.platform.url
 }
 
+output "stack_service_account_token" {
+  description = "platform-terraform stack SA token — copy into terraform.tfvars as stack_service_account_token after first create."
+  value       = grafana_cloud_stack_service_account_token.terraform.key
+  sensitive   = true
+}
+
 output "cloudflare_edge_datasource_uid" {
   description = "Shared Infinity Cloudflare GraphQL data source UID."
   value       = grafana_data_source.cloudflare_infinity.uid
