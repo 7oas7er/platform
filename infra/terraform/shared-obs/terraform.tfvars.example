@@ -1,0 +1,11 @@
+stack_slug = "joyfulraspberry90"
+
+cloud_access_policy_token  = "glc_…"
+cloudflare_analytics_token = "…"   # Zone Analytics Read
+
+# Required by grafana.stack provider. After first SA apply:
+#   terraform output -raw stack_service_account_token
+# Or temporarily reuse another Admin stack SA token for bootstrap.
+stack_service_account_token = "glsa_…"
+
+# github_plugin_version = "2.9.3"
