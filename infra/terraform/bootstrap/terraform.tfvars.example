@@ -1,0 +1,2 @@
+# aws_profile = "7oas7er-terraform"
+# state_bucket_name = "shared-7oas7er-platform-terraform-state-bucket"

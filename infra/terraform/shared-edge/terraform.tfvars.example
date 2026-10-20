@@ -1,0 +1,12 @@
+# zone_id = "701810fff825f90c0eea671970a0cc9e"
+
+# From each app's AWS envs/*/terraform.tfvars origin_verify_secret (never commit real values).
+blockdrop_stg_origin_verify_secret  = "replace-with-blockdrop-stg-secret"
+blockdrop_prod_origin_verify_secret = "replace-with-blockdrop-prod-secret"
+netrunner_stg_origin_verify_secret  = "replace-with-netrunner-stg-secret"
+netrunner_prod_origin_verify_secret = "replace-with-netrunner-prod-secret"
+
+# Optional Free-compatible /api/scores rate limit overrides:
+# api_rate_limit_period_seconds              = 10
+# api_rate_limit_requests_per_period         = 20
+# api_rate_limit_mitigation_timeout_seconds  = 10
