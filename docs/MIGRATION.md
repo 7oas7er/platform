@@ -25,15 +25,15 @@ cp terraform.tfvars.example terraform.tfvars
 terraform init
 ```
 
-Import IDs (zone `701810fff825f90c0eea671970a0cc9e`):
+Import IDs (Cloudflare provider **v5** needs the `zones/` prefix — not bare `zone_id/ruleset_id`):
 
 ```bash
 ZONE=701810fff825f90c0eea671970a0cc9e
-terraform import cloudflare_ruleset.origin_verify ${ZONE}/9a0540dbe98b4421b3784787f055db2d
-terraform import cloudflare_ruleset.cache ${ZONE}/69cc6ed866f946658be4d6a6a13b540b
-terraform import cloudflare_ruleset.redirects ${ZONE}/ddb6636b089a4f1a8d0856da7890b470
-terraform import cloudflare_ruleset.rate_limit ${ZONE}/baee8dfa55564c45997beaea46005185
-terraform import cloudflare_zone_setting.ssl ${ZONE}/ssl
+terraform import cloudflare_ruleset.origin_verify "zones/${ZONE}/9a0540dbe98b4421b3784787f055db2d"
+terraform import cloudflare_ruleset.cache "zones/${ZONE}/69cc6ed866f946658be4d6a6a13b540b"
+terraform import cloudflare_ruleset.redirects "zones/${ZONE}/ddb6636b089a4f1a8d0856da7890b470"
+terraform import cloudflare_ruleset.rate_limit "zones/${ZONE}/baee8dfa55564c45997beaea46005185"
+terraform import cloudflare_zone_setting.ssl "zones/${ZONE}/ssl"
 terraform plan   # expect no destroy of rules; rename/description updates OK
 terraform apply
 ```
