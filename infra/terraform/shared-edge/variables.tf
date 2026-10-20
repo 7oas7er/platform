@@ -17,7 +17,7 @@ variable "blockdrop_prod_origin_verify_secret" {
   sensitive   = true
 }
 
-# Netrunner — must match play-scala AWS envs/*/ origin_verify_secret.
+# Netrunner — must match netrunner AWS envs/*/ origin_verify_secret.
 variable "netrunner_stg_origin_verify_secret" {
   description = "X-Origin-Verify for netrunner-stg.7oas7er.com."
   type        = string
