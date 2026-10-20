@@ -1,21 +1,27 @@
-# 7oas7er platform (shared edge + observability)
+# 7oas7er platform
 
-Explicit **platform** layer for apps that share zone `7oas7er.com` and one Grafana Cloud Free stack. Apps (Block Drop, Netrunner) depend on this repo — they must **not** depend on each other.
+Shared infrastructure for **isolated app repositories**. Apps (Block Drop, Netrunner, future products) each own their product and AWS site stack; this repo owns multi-tenant Cloudflare zone policy and shared Grafana Free objects.
+
+**Architecture:** [docs/architecture.md](docs/architecture.md) · **ADR:** [docs/adr/0001-shared-edge-and-obs.md](docs/adr/0001-shared-edge-and-obs.md) · **Agents:** [AGENTS.md](AGENTS.md)
+
+```text
+app repos ──► 7oas7er/platform   (never app ──► app)
+```
 
 | Root | Purpose |
 |------|---------|
-| [`infra/terraform/bootstrap`](infra/terraform/bootstrap/) | S3 state bucket for platform roots (local backend on first apply) |
+| [`infra/terraform/bootstrap`](infra/terraform/bootstrap/) | S3 state bucket for platform roots |
 | [`infra/terraform/shared-edge`](infra/terraform/shared-edge/) | Zone rulesets: origin-verify, cache, redirects, rate-limit, SSL |
 | [`infra/terraform/shared-obs`](infra/terraform/shared-obs/) | Shared Grafana Infinity DS + GitHub plugin |
 
-App Cloudflare roots: **DNS only**. App Grafana roots: dashboards, synthetics, CloudWatch scrape, per-app GitHub data sources.
+**Apps own:** DNS CNAMEs, AWS site (S3/CloudFront/…), Grafana folder/dashboard/synthetics/CloudWatch/per-app GitHub DS, site CI deploy.
 
-See [docs/adr/0001-shared-edge-and-obs.md](docs/adr/0001-shared-edge-and-obs.md) and [docs/MIGRATION.md](docs/MIGRATION.md).
+**Apps must not:** recreate zone rulesets, Infinity `infinity-cloudflare`, or the GitHub Cloud plugin.
 
 ## Apply order (local)
 
 ```bash
-export AWS_PROFILE=7oas7er   # or 7oas7er-terraform if using aws login sessions
+export AWS_PROFILE=7oas7er   # or 7oas7er-terraform for aws login sessions
 export CLOUDFLARE_API_TOKEN=…
 
 cd infra/terraform/bootstrap && terraform init && terraform apply
@@ -24,5 +30,7 @@ terraform init && terraform apply
 cd ../shared-obs && cp terraform.tfvars.example terraform.tfvars
 terraform init && terraform apply
 ```
+
+One-time move from Block Drop state: [docs/MIGRATION.md](docs/MIGRATION.md).
 
 Never commit `terraform.tfvars` or state files.
