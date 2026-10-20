@@ -17,7 +17,11 @@ terraform apply
 export CLOUDFLARE_API_TOKEN=…
 cd ../shared-edge
 cp terraform.tfvars.example terraform.tfvars
-# Copy secrets from Block Drop cloudflare terraform.tfvars (all four origin-verify vars)
+# Map from Block Drop cloudflare terraform.tfvars:
+#   stg_origin_verify_secret      → blockdrop_stg_origin_verify_secret
+#   prod_origin_verify_secret     → blockdrop_prod_origin_verify_secret
+#   netrunner_stg_origin_verify_secret → netrunner_stg_origin_verify_secret
+#   netrunner_prod_origin_verify_secret → netrunner_prod_origin_verify_secret
 terraform init
 ```
 
