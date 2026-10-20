@@ -1,0 +1,12 @@
+---
+description: Shared platform repo — apps are isolated; this repo owns shared-edge + shared-obs
+alwaysApply: true
+---
+
+# Platform — core
+
+- **Role**: multi-tenant Cloudflare zone policy + shared Grafana Free objects for isolated app repos.
+- **Dependency**: apps → this repo only; never app → app.
+- **Do**: manage `shared-edge` / `shared-obs` / bootstrap; keep docs in `docs/architecture.md` and ADR 0001 accurate.
+- **Don’t**: host app site content, app AWS site stacks, or per-app Grafana dashboards here.
+- **Agents**: `AGENTS.md`, `README.md`, `docs/architecture.md`. Prefer small diffs. Local Terraform apply only.
