@@ -35,8 +35,10 @@ terraform import cloudflare_ruleset.redirects "zones/${ZONE}/ddb6636b089a4f1a8d0
 terraform import cloudflare_ruleset.rate_limit "zones/${ZONE}/baee8dfa55564c45997beaea46005185"
 # zone_setting uses bare zone_id/setting_id (no zones/ prefix — unlike rulesets)
 terraform import cloudflare_zone_setting.ssl "${ZONE}/ssl"
-terraform plan   # expect no destroy of rules; rename/description updates OK
-terraform apply
+terraform plan
+# Expect **no** destroy/replace. If you see -/+ on rulesets, a `name` change is
+# ForceNew — keep the live Cloudflare ruleset names (do not rename to "7oas7er …").
+terraform apply   # only if plan is empty or in-place-only (no -/+ rulesets)
 ```
 
 ## 3. Remove from Block Drop state (do not destroy)
