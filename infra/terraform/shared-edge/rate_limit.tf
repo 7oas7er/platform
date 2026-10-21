@@ -1,6 +1,6 @@
 # Cloudflare Free: one rate-limit rule, path-only expression, 10s periods.
 resource "cloudflare_ruleset" "rate_limit" {
-  zone_id     = local.zone_id
+  zone_id = local.zone_id
   # Keep name identical to live Cloudflare ruleset — renaming ForceNew-replaces the ruleset.
   name        = "Block Drop rate limiting"
   description = "IP rate limit for Block Drop /api/scores (Cloudflare Free constraints)."
