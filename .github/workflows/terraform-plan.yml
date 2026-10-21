@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: terraform-plan-${{ github.workflow }}-${{ github.ref_name }}-${{ github.event_name }}
