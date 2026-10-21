@@ -1,0 +1,15 @@
+# Checkov for platform Terraform roots (bootstrap / shared-edge / shared-obs).
+compact: true
+framework:
+  - terraform
+download-external-modules: false
+quiet: true
+
+skip-check:
+  # Bootstrap state bucket: SSE-S3 AES256 intentional; single-region eu-north-1.
+  - CKV_AWS_145
+  - CKV_AWS_19
+  - CKV_AWS_144
+  - CKV_AWS_18
+  - CKV2_AWS_61
+  - CKV_AWS_21

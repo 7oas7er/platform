@@ -1,0 +1,5 @@
+name: "Platform CodeQL"
+paths-ignore:
+  - "**/*.md"
+  - "**/terraform.tfvars.example"
+  - "**/.terraform/**"

@@ -1,0 +1,51 @@
+name: Required CI
+
+on:
+  pull_request:
+    branches:
+      - staging
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: required-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  required:
+    name: Required CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Summarize path-filtered gates
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'infra/terraform/**'
+              - '.github/workflows/terraform-plan.yml'
+            codeql:
+              - '.github/workflows/**'
+              - '.github/codeql/**'
+
+      - name: Gate map
+        run: |
+          set -euo pipefail
+          echo "Expect these workflows when the matching paths change:"
+          if [ "${{ steps.filter.outputs.infra }}" = "true" ]; then
+            echo "- Terraform plan → Format, IaC policy (Checkov), Validate"
+          fi
+          if [ "${{ steps.filter.outputs.codeql }}" = "true" ]; then
+            echo "- CodeQL → Analyze (actions)"
+          fi
+          if [ "${{ steps.filter.outputs.infra }}" != "true" ] \
+            && [ "${{ steps.filter.outputs.codeql }}" != "true" ]; then
+            echo "- Docs/meta-only PR: path-filtered suites intentionally skipped"
+          fi
