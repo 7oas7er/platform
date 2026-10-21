@@ -2,7 +2,9 @@
 
 Shared infrastructure for **isolated app repositories**. Apps (Block Drop, Netrunner, future products) each own their product and AWS site stack; this repo owns multi-tenant Cloudflare zone policy and shared Grafana Free objects.
 
-**Architecture:** [docs/architecture.md](docs/architecture.md) · **ADR:** [docs/adr/0001-shared-edge-and-obs.md](docs/adr/0001-shared-edge-and-obs.md) · **Agents:** [AGENTS.md](AGENTS.md)
+**Architecture:** [docs/architecture.md](docs/architecture.md) · **ADR:** [docs/adr/0001-shared-edge-and-obs.md](docs/adr/0001-shared-edge-and-obs.md) · **Agents:** [AGENTS.md](AGENTS.md) · **Security floor:** [docs/github-branch-protection.md](docs/github-branch-protection.md) · **Secrets:** [SECURITY.md](SECURITY.md)
+
+Delivery matches the app template pattern: feature PRs → **`staging`**, promote **`staging` → `main`**. CI runs Terraform fmt/Checkov/validate and CodeQL on Actions; apply stays local.
 
 ```text
 app repos ──► 7oas7er/platform   (never app ──► app)

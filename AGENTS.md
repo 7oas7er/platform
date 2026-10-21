@@ -12,6 +12,12 @@ This repo is the **shared platform** for isolated app repositories (Block Drop, 
 - Never commit `.tfstate`, `terraform.tfvars`, API tokens, or AWS keys.
 - Tag AWS resources with `Project=platform` (and `Environment` as appropriate).
 
+## GitHub workflow
+
+- Feature work: branch → PR → **`staging`**. Promote via **`staging` → `main`** when asked.
+- Do **not** push or merge unless Frank asks. Do **not** force-push protected branches.
+- **Security floor** (public repo, Dependabot alerts, secret scanning + push protection, ruleset, read-only `GITHUB_TOKEN`): apply and API-verify per [`docs/github-branch-protection.md`](docs/github-branch-protection.md). Private Free GitHub cannot host rulesets — keep this repo **public** like the app templates.
+
 ## Definition of done
 
 1. [ ] Change matches the request; no unrelated refactors.

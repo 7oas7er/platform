@@ -9,4 +9,5 @@ alwaysApply: true
 - **Dependency**: apps → this repo only; never app → app.
 - **Do**: manage `shared-edge` / `shared-obs` / bootstrap; keep docs in `docs/architecture.md` and ADR 0001 accurate.
 - **Don’t**: host app site content, app AWS site stacks, or per-app Grafana dashboards here.
-- **Agents**: `AGENTS.md`, `README.md`, `docs/architecture.md`. Prefer small diffs. Local Terraform apply only.
+- **GitHub**: `staging` → `main` promote path; same security floor as Block Drop (`docs/github-branch-protection.md`) — public repo, Dependabot alerts, secret scanning + push protection, ruleset, read-only Actions token. Verify via API; do not assume create-time defaults.
+- **Agents**: `AGENTS.md`, `README.md`, `docs/architecture.md`, `SECURITY.md`. Prefer small diffs. Local Terraform apply only.
