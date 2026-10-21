@@ -1,5 +1,5 @@
 resource "cloudflare_ruleset" "cache" {
-  zone_id     = local.zone_id
+  zone_id = local.zone_id
   # Keep name identical to live Cloudflare ruleset — renaming ForceNew-replaces the ruleset.
   name        = "Block Drop cache settings"
   description = "Respect origin Cache-Control for Block Drop and Netrunner hosts; bypass Block Drop /api/scores."

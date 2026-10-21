@@ -1,6 +1,6 @@
 # www / apex → blockdrop.7oas7er.com (zone-wide canonical for the apex domain).
 resource "cloudflare_ruleset" "redirects" {
-  zone_id     = local.zone_id
+  zone_id = local.zone_id
   # Keep name identical to live Cloudflare ruleset — renaming ForceNew-replaces the ruleset.
   name        = "Block Drop canonical redirects"
   description = "Redirect www and apex to blockdrop.7oas7er.com."
