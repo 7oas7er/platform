@@ -1,0 +1,778 @@
+{
+  "uid": "platform-costs",
+  "title": "Platform \u2014 Costs (EUR)",
+  "description": "Cross-project operator spend (EUR). Non-AWS from costs/monthly.json; AWS from Prometheus (Cloud Provider billing scrape) \u00d7 Frankfurter when aws_live.",
+  "tags": [
+    "platform",
+    "costs",
+    "eur",
+    "shared-obs",
+    "aws"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 3,
+  "refresh": "1h",
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "infinity",
+        "type": "datasource",
+        "query": "yesoreyeram-infinity-datasource",
+        "current": {
+          "text": "Platform costs",
+          "value": "infinity-platform"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false
+      },
+      {
+        "name": "prometheus",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "About",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-10`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1) \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR. One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every 5m \u2014 no monthly.json edit."
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Non-AWS vendors \u2014 2026-10",
+      "description": "Sum of operator-maintained rows in costs/monthly.json (AWS excluded).",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 4
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "MANUAL",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"label\":\"Non-AWS vendors\",\"amount_eur\":0.0,\"month\":\"2026-10\"}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "label",
+              "text": "Label",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "AWS MTD (EUR, live)",
+      "description": "Prometheus EstimatedCharges (USD) \u00d7 Frankfurter USD\u2192EUR. Requires billing alerts + platform-aws-billing scrape job.",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 4
+      },
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 20
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "USD",
+          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "legendFormat": "AWS USD MTD",
+          "range": true,
+          "instant": false,
+          "exemplar": false,
+          "hide": true,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          }
+        },
+        {
+          "refId": "FX",
+          "type": "json",
+          "source": "url",
+          "format": "timeseries",
+          "parser": "backend",
+          "url": "https://api.frankfurter.app/latest?from=USD&to=EUR",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          },
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "date",
+              "text": "Time",
+              "type": "timestamp"
+            },
+            {
+              "selector": "rates.EUR",
+              "text": "eur_per_usd",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "data": "",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${infinity}"
+          },
+          "hide": true
+        },
+        {
+          "refId": "USD_R",
+          "type": "reduce",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "USD",
+          "reducer": "last",
+          "settings": {
+            "mode": "dropNN"
+          },
+          "hide": true
+        },
+        {
+          "refId": "FX_R",
+          "type": "reduce",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "FX",
+          "reducer": "last",
+          "settings": {
+            "mode": "dropNN"
+          },
+          "hide": true
+        },
+        {
+          "refId": "EUR",
+          "type": "math",
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "$USD_R * $FX_R",
+          "hide": false
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "AWS MTD (USD, live)",
+      "description": "Raw scraped EstimatedCharges (always USD).",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "legendFormat": "AWS USD MTD",
+          "range": true,
+          "instant": false,
+          "exemplar": false,
+          "hide": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "AWS estimated charges (USD, MTD)",
+      "description": "Scraped billing metric history for the selected range.",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "spanNulls": true,
+            "showPoints": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "legendFormat": "AWS USD MTD",
+          "range": true,
+          "instant": false,
+          "exemplar": false,
+          "hide": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "piechart",
+      "title": "Non-AWS by vendor \u2014 2026-10",
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 0,
+        "y": 18
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "pieType": "donut",
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0},{\"vendor\":\"Claude\",\"amount_eur\":0.0},{\"vendor\":\"GitHub\",\"amount_eur\":0.0},{\"vendor\":\"Cloudflare\",\"amount_eur\":0.0},{\"vendor\":\"Other\",\"amount_eur\":0.0}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "vendor",
+              "text": "Vendor",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "barchart",
+      "title": "Non-AWS monthly total (history)",
+      "description": "Operator feed only (AWS live is separate).",
+      "gridPos": {
+        "h": 10,
+        "w": 15,
+        "x": 9,
+        "y": 18
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "barWidth": 0.7,
+        "groupWidth": 0.7,
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0,
+        "showValue": "always",
+        "stacking": "none",
+        "orientation": "vertical",
+        "xField": "Month"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"month\":\"2026-10\",\"amount_eur\":0.0}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "month",
+              "text": "Month",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Vendor breakdown \u2014 2026-10",
+      "gridPos": {
+        "h": 10,
+        "w": 14,
+        "x": 0,
+        "y": 28
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EUR"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "fields": ""
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"vendor\":\"GitHub\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Actions, Copilot, org billing\"},{\"vendor\":\"Cloudflare\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Zone / add-ons (Free \\u2248 0)\"},{\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "vendor",
+              "text": "Vendor",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            },
+            {
+              "selector": "project",
+              "text": "Project",
+              "type": "string"
+            },
+            {
+              "selector": "notes",
+              "text": "Notes",
+              "type": "string"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "All months (flat, non-AWS)",
+      "gridPos": {
+        "h": 10,
+        "w": 10,
+        "x": 14,
+        "y": 28
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EUR"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "fields": ""
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"month\":\"2026-10\",\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"month\":\"2026-10\",\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"month\":\"2026-10\",\"vendor\":\"GitHub\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Actions, Copilot, org billing\"},{\"month\":\"2026-10\",\"vendor\":\"Cloudflare\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Zone / add-ons (Free \\u2248 0)\"},{\"month\":\"2026-10\",\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "month",
+              "text": "Month",
+              "type": "string"
+            },
+            {
+              "selector": "vendor",
+              "text": "Vendor",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            },
+            {
+              "selector": "project",
+              "text": "Project",
+              "type": "string"
+            },
+            {
+              "selector": "notes",
+              "text": "Notes",
+              "type": "string"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    }
+  ]
+}
