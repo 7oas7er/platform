@@ -203,7 +203,7 @@ def build_dashboard(costs: dict) -> dict:
             "`EstimatedCharges` into Prometheus (USD, us-east-1) × "
             "[Frankfurter](https://www.frankfurter.app/) USD→EUR. One-time: enable "
             "**Receive CloudWatch Billing Alerts** in AWS Billing preferences. "
-            "Scrape hourly — no monthly.json edit."
+            "Scrape every 5m — no monthly.json edit."
         )
     else:
         about += "AWS live panels disabled (`aws_live: false`)."

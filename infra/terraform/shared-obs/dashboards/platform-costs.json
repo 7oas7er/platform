@@ -64,7 +64,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-10`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1) \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR. One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape hourly \u2014 no monthly.json edit."
+        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-10`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1) \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR. One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every 5m \u2014 no monthly.json edit."
       }
     },
     {
