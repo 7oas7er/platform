@@ -25,6 +25,7 @@
 |---------|--------|
 | Zone rulesets (origin-verify, cache, redirects, rate-limit, SSL) | platform `shared-edge` |
 | Shared Grafana Infinity DS + GitHub **plugin** | platform `shared-obs` |
+| Platform cost overview (EUR; operator feed → later vendor APIs) | platform `shared-obs` |
 | App DNS (host CNAMEs) | each app `infra/terraform/cloudflare` |
 | App AWS (S3, CloudFront, IAM deploy/plan, Lambda…) | each app `infra/terraform/aws` |
 | App Grafana (folder, dashboard, synthetics, CW scrape, per-app GitHub DS) | each app `infra/terraform/grafana` |
@@ -39,7 +40,7 @@ Apps may share one AWS account. Always tag taggable resources with `Project=<slu
 1. Clone / copy an app template (e.g. Block Drop); keep `app-*` Cursor rules.
 2. Fresh Terraform state bucket/keys; never reuse another app’s state keys.
 3. App Cloudflare root = **DNS only**; add origin-verify secrets for new hosts in platform `shared-edge`.
-4. App Grafana = dashboards/synthetics/CW/GitHub DS only; do **not** recreate Infinity or the GitHub plugin.
+4. App Grafana = dashboards/synthetics/CW/GitHub DS only; do **not** recreate Infinity, the GitHub plugin, or the platform cost dashboard.
 5. Document the app → platform dependency in the app’s ADR (mirror of platform ADR 0001).
 
-Canonical decision record: [adr/0001-shared-edge-and-obs.md](adr/0001-shared-edge-and-obs.md).
+Canonical decision records: [adr/0001-shared-edge-and-obs.md](adr/0001-shared-edge-and-obs.md), [adr/0002-platform-cost-dashboard.md](adr/0002-platform-cost-dashboard.md).

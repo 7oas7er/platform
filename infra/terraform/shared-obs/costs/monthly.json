@@ -1,0 +1,47 @@
+{
+  "currency": "EUR",
+  "description": "P0 operator-maintained monthly spend for the platform cost dashboard. Edit amounts, run scripts/generate-costs-dashboard.py, then terraform apply.",
+  "months": [
+    {
+      "month": "2026-10",
+      "by_vendor": [
+        {
+          "vendor": "Cursor",
+          "amount_eur": 0,
+          "project": "shared",
+          "notes": "IDE / agent subscription"
+        },
+        {
+          "vendor": "Claude",
+          "amount_eur": 0,
+          "project": "shared",
+          "notes": "Anthropic subscription or API"
+        },
+        {
+          "vendor": "GitHub",
+          "amount_eur": 0,
+          "project": "shared",
+          "notes": "Actions, Copilot, org billing"
+        },
+        {
+          "vendor": "Cloudflare",
+          "amount_eur": 0,
+          "project": "shared",
+          "notes": "Zone / add-ons (Free ≈ 0)"
+        },
+        {
+          "vendor": "AWS",
+          "amount_eur": 0,
+          "project": "shared",
+          "notes": "Account total; tag Project= for later split"
+        },
+        {
+          "vendor": "Other",
+          "amount_eur": 0,
+          "project": "shared",
+          "notes": "Misc vendors not listed above"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,504 @@
+{
+  "uid": "platform-costs",
+  "title": "Platform \u2014 Costs (EUR)",
+  "description": "Cross-project operator spend overview (EUR). Owned by 7oas7er/platform shared-obs. P0 feed: costs/monthly.json.",
+  "tags": [
+    "platform",
+    "costs",
+    "eur",
+    "shared-obs"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "",
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "infinity",
+        "type": "datasource",
+        "query": "yesoreyeram-infinity-datasource",
+        "current": {
+          "text": "Platform costs",
+          "value": "infinity-platform"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "About",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Currency: EUR (\u20ac).** Latest month in feed: `2026-10`.\n\nP0: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply` in `shared-obs`. Later: AWS Cost Explorer / vendor APIs where available; subscriptions may stay manual."
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Total \u2014 2026-10",
+      "description": "Sum of vendor amounts for the latest month in costs/monthly.json.",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 3
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 200
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"label\":\"Total\",\"amount_eur\":0.0,\"month\":\"2026-10\"}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "label",
+              "text": "Label",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "piechart",
+      "title": "By vendor \u2014 2026-10",
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 6,
+        "y": 3
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "pieType": "donut",
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0},{\"vendor\":\"Claude\",\"amount_eur\":0.0},{\"vendor\":\"GitHub\",\"amount_eur\":0.0},{\"vendor\":\"Cloudflare\",\"amount_eur\":0.0},{\"vendor\":\"AWS\",\"amount_eur\":0.0},{\"vendor\":\"Other\",\"amount_eur\":0.0}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "vendor",
+              "text": "Vendor",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "barchart",
+      "title": "Monthly total (history)",
+      "description": "One bar per month in the feed (EUR).",
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 15,
+        "y": 3
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "axisPlacement": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "barWidth": 0.7,
+        "groupWidth": 0.7,
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0,
+        "showValue": "always",
+        "stacking": "none",
+        "orientation": "vertical",
+        "xField": "Month"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"month\":\"2026-10\",\"amount_eur\":0.0}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "month",
+              "text": "Month",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Vendor breakdown \u2014 2026-10",
+      "gridPos": {
+        "h": 10,
+        "w": 14,
+        "x": 0,
+        "y": 13
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EUR"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "fields": ""
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"vendor\":\"GitHub\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Actions, Copilot, org billing\"},{\"vendor\":\"Cloudflare\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Zone / add-ons (Free \\u2248 0)\"},{\"vendor\":\"AWS\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Account total; tag Project= for later split\"},{\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "vendor",
+              "text": "Vendor",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            },
+            {
+              "selector": "project",
+              "text": "Project",
+              "type": "string"
+            },
+            {
+              "selector": "notes",
+              "text": "Notes",
+              "type": "string"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "All months (flat)",
+      "description": "Full history from costs/monthly.json for spot checks.",
+      "gridPos": {
+        "h": 10,
+        "w": 10,
+        "x": 14,
+        "y": 13
+      },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${infinity}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EUR"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "fields": ""
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "format": "table",
+          "parser": "backend",
+          "data": "[{\"month\":\"2026-10\",\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"month\":\"2026-10\",\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"month\":\"2026-10\",\"vendor\":\"GitHub\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Actions, Copilot, org billing\"},{\"month\":\"2026-10\",\"vendor\":\"Cloudflare\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Zone / add-ons (Free \\u2248 0)\"},{\"month\":\"2026-10\",\"vendor\":\"AWS\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Account total; tag Project= for later split\"},{\"month\":\"2026-10\",\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "month",
+              "text": "Month",
+              "type": "string"
+            },
+            {
+              "selector": "vendor",
+              "text": "Vendor",
+              "type": "string"
+            },
+            {
+              "selector": "amount_eur",
+              "text": "EUR",
+              "type": "number"
+            },
+            {
+              "selector": "project",
+              "text": "Project",
+              "type": "string"
+            },
+            {
+              "selector": "notes",
+              "text": "Notes",
+              "type": "string"
+            }
+          ],
+          "filters": [],
+          "url": "",
+          "url_options": {
+            "method": "GET",
+            "data": ""
+          }
+        }
+      ]
+    }
+  ]
+}
