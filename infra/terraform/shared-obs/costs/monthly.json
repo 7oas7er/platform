@@ -1,6 +1,7 @@
 {
   "currency": "EUR",
-  "description": "P0 operator-maintained monthly spend for the platform cost dashboard. Edit amounts, run scripts/generate-costs-dashboard.py, then terraform apply.",
+  "description": "Operator-maintained non-AWS spend. AWS is live from CloudWatch EstimatedCharges (USD→EUR). Edit amounts, run scripts/generate-costs-dashboard.py, then terraform apply.",
+  "aws_live": true,
   "months": [
     {
       "month": "2026-10",
@@ -28,12 +29,6 @@
           "amount_eur": 0,
           "project": "shared",
           "notes": "Zone / add-ons (Free ≈ 0)"
-        },
-        {
-          "vendor": "AWS",
-          "amount_eur": 0,
-          "project": "shared",
-          "notes": "Account total; tag Project= for later split"
         },
         {
           "vendor": "Other",

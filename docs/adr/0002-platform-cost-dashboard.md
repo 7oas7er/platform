@@ -13,15 +13,17 @@ Vendor billing APIs are uneven: AWS is automatable later; Cursor / Claude subscr
 
 1. **Own a platform cost dashboard in `7oas7er/platform` `shared-obs`**, not in app repos.
 2. **Currency is EUR** (€) for all cost panels and the P0 feed.
-3. **P0 data feed:** `infra/terraform/shared-obs/costs/monthly.json` — edit amounts, regenerate the dashboard JSON, `terraform apply` locally.
-4. **Reuse Infinity** via a dedicated stack data source `infinity-platform` (inline today; URL hosts later for S3/API). Do **not** overload `infinity-cloudflare`.
-5. **Phased automation (non-blocking):** P1 AWS Cost Explorer / CUR (respect `Project=` tags); P2 GitHub / Cloudflare billing where tokens allow; P3 keep subscription vendors manual unless APIs appear.
-6. App grafana roots stay product-only; they must not recreate this folder/dashboard or `infinity-platform`.
+3. **Manual feed (non-AWS):** `infra/terraform/shared-obs/costs/monthly.json` — edit amounts, regenerate the dashboard JSON, `terraform apply` locally.
+4. **Reuse Infinity** via `infinity-platform` (inline + FX URL). Do **not** overload `infinity-cloudflare`.
+5. **AWS automation (P1):** Grafana Cloud Provider scrape job `platform-aws-billing` → Prometheus metric from `AWS/Billing` `EstimatedCharges` (USD, `us-east-1`). Convert to EUR with Frankfurter on the dashboard. Reuse an existing Cloud Provider AWS account `resource_id` when the account is already linked (e.g. by an app); otherwise create account `platform` + IAM role. One-time: **Receive CloudWatch Billing Alerts**. Do **not** use a CloudWatch data source with `grafana_assume_role` on this stack (credentials failed).
+6. **Later (non-blocking):** Cost Explorer / CUR for tag splits (`Project=`); GitHub / Cloudflare billing APIs; subscription vendors stay manual unless APIs appear.
+7. App grafana roots stay product-only; they must not recreate this folder/dashboard or `infinity-platform`.
 
 ## Consequences
 
-- `shared-obs` scope expands beyond Infinity Cloudflare + GitHub plugin to: platform folder, cost dashboard, `infinity-platform`, `costs/monthly.json`.
+- `shared-obs` owns: Infinity Cloudflare + GitHub plugin, platform folder/dashboard, `infinity-platform`, billing scrape job, optional billing IAM role, `costs/monthly.json`.
 - Spend figures in `costs/monthly.json` are committed (public repo). Treat as non-secret operational data; do not put tokens or invoices there.
+- AWS amounts are **estimates in USD** converted at the live FX rate (not the invoice settlement currency).
 - Docs / AGENTS “what lives where” must list platform costs under platform, not apps.
 
 ## See also
