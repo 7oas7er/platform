@@ -18,3 +18,21 @@ resource "grafana_data_source" "cloudflare_infinity" {
     bearerToken = var.cloudflare_analytics_token
   })
 }
+
+# Inline (P0) / future URL feeds for platform cost dashboard — not for app traffic.
+resource "grafana_data_source" "platform_infinity" {
+  provider = grafana.stack
+
+  type = "yesoreyeram-infinity-datasource"
+  name = "Platform costs"
+  uid  = "infinity-platform"
+
+  json_data_encoded = jsonencode({
+    auth_method = "none"
+    # URL mode later (S3, billing APIs). Inline queries do not need these hosts.
+    allowedHosts = [
+      "https://api.github.com",
+      "https://api.cloudflare.com",
+    ]
+  })
+}
