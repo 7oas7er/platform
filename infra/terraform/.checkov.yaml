@@ -1,4 +1,6 @@
 # Checkov for platform Terraform roots (bootstrap / shared-edge / shared-obs).
+# CI: `.github/workflows/terraform-plan.yml` job "IaC policy (Checkov)".
+# How to add/remove skips: docs/iac-policy.md
 compact: true
 framework:
   - terraform
@@ -13,3 +15,5 @@ skip-check:
   - CKV_AWS_18
   - CKV2_AWS_61
   - CKV_AWS_21
+  # Event notifications — not used; no downstream consumers of state-bucket events.
+  - CKV2_AWS_62
