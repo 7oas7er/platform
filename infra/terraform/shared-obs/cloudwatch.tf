@@ -31,8 +31,9 @@ resource "grafana_cloud_provider_aws_cloudwatch_scrape_job" "billing" {
   regions_subset_override = ["us-east-1"]
 
   service {
-    name                    = "AWS/Billing"
-    scrape_interval_seconds = 3600
+    name = "AWS/Billing"
+    # Cloud Provider rejects 3600; allowed set matches app scrapes (e.g. 300).
+    scrape_interval_seconds = 300
 
     metric {
       name       = "EstimatedCharges"
