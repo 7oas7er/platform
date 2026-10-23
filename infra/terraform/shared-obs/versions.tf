@@ -2,9 +2,17 @@ terraform {
   required_version = ">= 1.10.0"
 
   required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.69"
+    }
     grafana = {
       source  = "grafana/grafana"
       version = "~> 4.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.13"
     }
   }
 
@@ -14,6 +22,18 @@ terraform {
     region       = "eu-north-1"
     use_lockfile = true
     encrypt      = true
+  }
+}
+
+provider "aws" {
+  region  = var.aws_region
+  profile = var.aws_profile
+
+  default_tags {
+    tags = {
+      Environment = "shared"
+      Project     = "platform"
+    }
   }
 }
 

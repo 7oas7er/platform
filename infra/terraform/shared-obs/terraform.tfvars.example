@@ -9,3 +9,9 @@ cloudflare_analytics_token = "…"   # Zone Analytics Read
 stack_service_account_token = "glsa_…"
 
 # github_plugin_version = "2.9.3"
+
+# AWS cost automation (CloudWatch Billing EstimatedCharges → EUR on dashboard)
+# aws_profile = "7oas7er-terraform"
+# enable_aws_billing_costs = true
+# IAM External ID defaults to stack prometheus_user_id.
+# grafana_aws_external_id = "…"

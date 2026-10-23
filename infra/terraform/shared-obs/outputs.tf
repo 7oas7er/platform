@@ -29,6 +29,21 @@ output "platform_costs_dashboard_url" {
   value       = grafana_dashboard.platform_costs.url
 }
 
+output "cloudwatch_billing_datasource_uid" {
+  description = "CloudWatch DS UID for AWS EstimatedCharges (null if enable_aws_billing_costs=false)."
+  value       = try(grafana_data_source.cloudwatch_billing[0].uid, null)
+}
+
+output "grafana_billing_role_arn" {
+  description = "IAM role Grafana Assume Role uses for billing metrics."
+  value       = try(aws_iam_role.grafana_billing[0].arn, null)
+}
+
+output "grafana_aws_external_id" {
+  description = "External ID embedded in the billing role trust policy."
+  value       = var.enable_aws_billing_costs ? local.grafana_aws_external_id : null
+}
+
 output "github_plugin_slug" {
   description = "Installed GitHub datasource plugin slug."
   value       = grafana_cloud_plugin_installation.github.slug
