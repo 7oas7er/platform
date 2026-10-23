@@ -10,8 +10,12 @@ stack_service_account_token = "glsa_…"
 
 # github_plugin_version = "2.9.3"
 
-# AWS cost automation (CloudWatch Billing EstimatedCharges → EUR on dashboard)
+# AWS cost automation (Cloud Provider scrape AWS/Billing → Prometheus → EUR)
 # aws_profile = "7oas7er-terraform"
 # enable_aws_billing_costs = true
-# IAM External ID defaults to stack prometheus_user_id.
+# Token with integration-management:read|write (or omit if cloud_access_policy_token has it):
+# cloud_provider_access_token = "glc_…"
+# If AWS account already linked (e.g. by Block Drop), set resource_id and skip account create:
+# grafana_aws_account_resource_id = "…"
+# IAM External ID (only when creating account "platform"):
 # grafana_aws_external_id = "…"

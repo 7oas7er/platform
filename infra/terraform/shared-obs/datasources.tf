@@ -37,20 +37,6 @@ resource "grafana_data_source" "platform_infinity" {
   })
 }
 
-# Live AWS MTD estimated charges (USD in us-east-1). Dashboard converts to EUR via Frankfurter.
-resource "grafana_data_source" "cloudwatch_billing" {
-  count    = var.enable_aws_billing_costs ? 1 : 0
-  provider = grafana.stack
-
-  depends_on = [time_sleep.grafana_billing_iam_propagation]
-
-  type = "cloudwatch"
-  name = "CloudWatch Billing"
-  uid  = "cloudwatch-billing"
-
-  json_data_encoded = jsonencode({
-    authType      = "grafana_assume_role"
-    defaultRegion = "us-east-1"
-    assumeRoleArn = aws_iam_role.grafana_billing[0].arn
-  })
-}
+# AWS billing is scraped by Cloud Provider (cloudwatch.tf) into Prometheus — no
+# CloudWatch data source. grafana_assume_role on a CW DS failed with
+# "get credentials: failed" on this stack; scrape uses the working auth path.

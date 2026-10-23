@@ -7,7 +7,7 @@ This repo is the **shared platform** for isolated app repositories (Block Drop, 
 - Prefer **small diffs**. No drive-by refactors outside the task.
 - **Apps must not depend on each other.** Shared zone/Grafana objects live here; apps consume them.
 - App Cloudflare roots are DNS-only; do not move DNS into this repo without a new ADR.
-- App Grafana dashboards/synthetics/CloudWatch stay in app repos; this repo owns Infinity + GitHub **plugin**, plus the platform **cost** folder/dashboard (EUR; live AWS Billing via CloudWatch — ADR 0002).
+- App Grafana dashboards/synthetics/CloudWatch stay in app repos; this repo owns Infinity + GitHub **plugin**, plus the platform **cost** folder/dashboard (EUR; live AWS Billing via Cloud Provider scrape — ADR 0002).
 - **Terraform apply is local** — never add CI apply unless an ADR says so.
 - Never commit `.tfstate`, `terraform.tfvars`, API tokens, or AWS keys.
 - Tag AWS resources with `Project=platform` (and `Environment` as appropriate).

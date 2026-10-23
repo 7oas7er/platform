@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Generate dashboards/platform-costs.json from costs/monthly.json (EUR).
 
-AWS month-to-date spend is live via CloudWatch EstimatedCharges (USD) × Frankfurter
-USD→EUR — not from monthly.json. Set aws_live false in monthly.json to omit those panels.
+AWS month-to-date spend is live via Grafana Cloud Provider scrape of
+AWS/Billing EstimatedCharges into Prometheus (USD) × Frankfurter USD→EUR.
+Set aws_live false in monthly.json to omit those panels.
 
 Usage (from shared-obs root):
   python3 scripts/generate-costs-dashboard.py
@@ -21,12 +22,18 @@ INFINITY = {
     "type": "yesoreyeram-infinity-datasource",
     "uid": "${infinity}",
 }
-CLOUDWATCH = {
-    "type": "cloudwatch",
-    "uid": "${cloudwatch}",
+PROMETHEUS = {
+    "type": "prometheus",
+    "uid": "${prometheus}",
 }
 EXPR = {"type": "__expr__", "uid": "__expr__"}
 MIXED = {"type": "datasource", "uid": "-- Mixed --"}
+
+# Grafana CloudWatch scrape → Prom naming (namespace/metric/stat → snake_case).
+# Currency dimension becomes label currency="USD".
+AWS_BILLING_PROMQL = (
+    'max(aws_billing_estimated_charges_maximum{currency="USD",project="platform"})'
+)
 
 
 def load_costs() -> dict:
@@ -45,7 +52,7 @@ def flatten(months: list[dict]) -> list[dict]:
         for v in m["by_vendor"]:
             vendor = v["vendor"]
             if vendor.strip().lower() == "aws":
-                # Live CloudWatch panel owns AWS; skip manual rows if someone re-adds them.
+                # Live Prometheus billing scrape owns AWS; skip manual rows.
                 continue
             rows.append(
                 {
@@ -101,23 +108,14 @@ def frankfurter_target(ref_id: str = "FX") -> dict:
     }
 
 
-def cloudwatch_estimated_charges(ref_id: str = "USD") -> dict:
+def prometheus_aws_billing(ref_id: str = "USD") -> dict:
     return {
         "refId": ref_id,
-        "queryMode": "Metrics",
-        "namespace": "AWS/Billing",
-        "metricName": "EstimatedCharges",
-        "dimensions": {"Currency": ["USD"]},
-        "statistic": "Maximum",
-        "period": "21600",
-        "region": "us-east-1",
-        "matchExact": True,
-        "metricQueryType": 0,
-        "metricEditorMode": 0,
-        "expression": "",
-        "sqlExpression": "",
-        "label": "AWS USD MTD",
-        "id": "",
+        "expr": AWS_BILLING_PROMQL,
+        "legendFormat": "AWS USD MTD",
+        "range": True,
+        "instant": False,
+        "exemplar": False,
         "hide": False,
     }
 
@@ -201,10 +199,11 @@ def build_dashboard(costs: dict) -> dict:
     )
     if aws_live:
         about += (
-            "**AWS is automated:** CloudWatch `AWS/Billing` `EstimatedCharges` "
-            "(USD, us-east-1, month-to-date) × [Frankfurter](https://www.frankfurter.app/) "
-            "USD→EUR. One-time: enable **Receive CloudWatch Billing Alerts** in AWS "
-            "Billing preferences. Updates several times daily — no monthly.json edit."
+            "**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` "
+            "`EstimatedCharges` into Prometheus (USD, us-east-1) × "
+            "[Frankfurter](https://www.frankfurter.app/) USD→EUR. One-time: enable "
+            "**Receive CloudWatch Billing Alerts** in AWS Billing preferences. "
+            "Scrape hourly — no monthly.json edit."
         )
     else:
         about += "AWS live panels disabled (`aws_live: false`)."
@@ -264,8 +263,8 @@ def build_dashboard(costs: dict) -> dict:
                     "type": "stat",
                     "title": "AWS MTD (EUR, live)",
                     "description": (
-                        "EstimatedCharges (USD) × Frankfurter USD→EUR. "
-                        "Requires billing alerts enabled; metric lives in us-east-1."
+                        "Prometheus EstimatedCharges (USD) × Frankfurter USD→EUR. "
+                        "Requires billing alerts + platform-aws-billing scrape job."
                     ),
                     "gridPos": {"h": 6, "w": 6, "x": 6, "y": 4},
                     "datasource": MIXED,
@@ -288,8 +287,8 @@ def build_dashboard(costs: dict) -> dict:
                     "options": stat_options(),
                     "targets": [
                         {
-                            **cloudwatch_estimated_charges("USD"),
-                            "datasource": CLOUDWATCH,
+                            **prometheus_aws_billing("USD"),
+                            "datasource": PROMETHEUS,
                             "hide": True,
                         },
                         {
@@ -315,9 +314,9 @@ def build_dashboard(costs: dict) -> dict:
                     "id": 11,
                     "type": "stat",
                     "title": "AWS MTD (USD, live)",
-                    "description": "Raw CloudWatch EstimatedCharges (always USD).",
+                    "description": "Raw scraped EstimatedCharges (always USD).",
                     "gridPos": {"h": 6, "w": 6, "x": 12, "y": 4},
-                    "datasource": CLOUDWATCH,
+                    "datasource": PROMETHEUS,
                     "fieldConfig": {
                         "defaults": {
                             "unit": "currencyUSD",
@@ -335,8 +334,8 @@ def build_dashboard(costs: dict) -> dict:
                     "options": stat_options(),
                     "targets": [
                         {
-                            **cloudwatch_estimated_charges("A"),
-                            "datasource": CLOUDWATCH,
+                            **prometheus_aws_billing("A"),
+                            "datasource": PROMETHEUS,
                         }
                     ],
                 },
@@ -344,9 +343,9 @@ def build_dashboard(costs: dict) -> dict:
                     "id": 12,
                     "type": "timeseries",
                     "title": "AWS estimated charges (USD, MTD)",
-                    "description": "CloudWatch billing metric history for the selected range.",
+                    "description": "Scraped billing metric history for the selected range.",
                     "gridPos": {"h": 8, "w": 24, "x": 0, "y": 10},
-                    "datasource": CLOUDWATCH,
+                    "datasource": PROMETHEUS,
                     "fieldConfig": {
                         "defaults": {
                             "unit": "currencyUSD",
@@ -371,8 +370,8 @@ def build_dashboard(costs: dict) -> dict:
                     },
                     "targets": [
                         {
-                            **cloudwatch_estimated_charges("A"),
-                            "datasource": CLOUDWATCH,
+                            **prometheus_aws_billing("A"),
+                            "datasource": PROMETHEUS,
                         }
                     ],
                 },
@@ -573,13 +572,10 @@ def build_dashboard(costs: dict) -> dict:
     if aws_live:
         templating["list"].append(
             {
-                "name": "cloudwatch",
+                "name": "prometheus",
                 "type": "datasource",
-                "query": "cloudwatch",
-                "current": {
-                    "text": "CloudWatch Billing",
-                    "value": "cloudwatch-billing",
-                },
+                "query": "prometheus",
+                "current": {},
                 "hide": 0,
                 "includeAll": False,
                 "multi": False,
@@ -594,12 +590,12 @@ def build_dashboard(costs: dict) -> dict:
         "title": "Platform — Costs (EUR)",
         "description": (
             "Cross-project operator spend (EUR). Non-AWS from costs/monthly.json; "
-            "AWS from CloudWatch EstimatedCharges × Frankfurter when aws_live is true."
+            "AWS from Prometheus (Cloud Provider billing scrape) × Frankfurter when aws_live."
         ),
         "tags": ["platform", "costs", "eur", "shared-obs", "aws"],
         "timezone": "browser",
         "schemaVersion": 39,
-        "version": 2,
+        "version": 3,
         "refresh": "1h",
         "time": {"from": "now-30d", "to": "now"},
         "templating": templating,

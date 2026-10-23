@@ -29,19 +29,24 @@ output "platform_costs_dashboard_url" {
   value       = grafana_dashboard.platform_costs.url
 }
 
-output "cloudwatch_billing_datasource_uid" {
-  description = "CloudWatch DS UID for AWS EstimatedCharges (null if enable_aws_billing_costs=false)."
-  value       = try(grafana_data_source.cloudwatch_billing[0].uid, null)
-}
-
 output "grafana_billing_role_arn" {
-  description = "IAM role Grafana Assume Role uses for billing metrics."
+  description = "IAM role for Cloud Provider account (null when reusing grafana_aws_account_resource_id)."
   value       = try(aws_iam_role.grafana_billing[0].arn, null)
 }
 
+output "grafana_aws_account_resource_id" {
+  description = "Cloud Provider AWS account resource_id used by the billing scrape job."
+  value       = local.grafana_aws_account_resource_id
+}
+
+output "grafana_aws_billing_scrape_job" {
+  description = "CloudWatch scrape job name for AWS/Billing."
+  value       = try(grafana_cloud_provider_aws_cloudwatch_scrape_job.billing[0].name, null)
+}
+
 output "grafana_aws_external_id" {
-  description = "External ID embedded in the billing role trust policy."
-  value       = var.enable_aws_billing_costs ? local.grafana_aws_external_id : null
+  description = "External ID used when creating the platform Cloud Provider IAM role."
+  value       = local.create_grafana_aws_account ? local.grafana_aws_external_id : null
 }
 
 output "github_plugin_slug" {
