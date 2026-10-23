@@ -82,16 +82,18 @@ def inline_target(
 
 
 def frankfurter_target(ref_id: str = "FX") -> dict:
+    # Time column so SSE reduce(last) can treat the frame like a series.
     return {
         "refId": ref_id,
         "type": "json",
         "source": "url",
-        "format": "table",
+        "format": "timeseries",
         "parser": "backend",
         "url": "https://api.frankfurter.app/latest?from=USD&to=EUR",
         "url_options": {"method": "GET", "data": ""},
         "root_selector": "",
         "columns": [
+            {"selector": "date", "text": "Time", "type": "timestamp"},
             {"selector": "rates.EUR", "text": "eur_per_usd", "type": "number"},
         ],
         "filters": [],
@@ -120,13 +122,14 @@ def cloudwatch_estimated_charges(ref_id: str = "USD") -> dict:
     }
 
 
-def expr_reduce(ref_id: str, expression: str, *, reducer: str = "lastNotNull") -> dict:
+def expr_reduce(ref_id: str, expression: str) -> dict:
+    # SSE reducers are last|mean|min|max|sum|count — not panel calcs like lastNotNull.
     return {
         "refId": ref_id,
         "type": "reduce",
         "datasource": EXPR,
         "expression": expression,
-        "reducer": reducer,
+        "reducer": "last",
         "settings": {"mode": "dropNN"},
         "hide": True,
     }

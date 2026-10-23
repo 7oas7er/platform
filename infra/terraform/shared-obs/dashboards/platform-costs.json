@@ -243,7 +243,7 @@
           "refId": "FX",
           "type": "json",
           "source": "url",
-          "format": "table",
+          "format": "timeseries",
           "parser": "backend",
           "url": "https://api.frankfurter.app/latest?from=USD&to=EUR",
           "url_options": {
@@ -252,6 +252,11 @@
           },
           "root_selector": "",
           "columns": [
+            {
+              "selector": "date",
+              "text": "Time",
+              "type": "timestamp"
+            },
             {
               "selector": "rates.EUR",
               "text": "eur_per_usd",
@@ -274,7 +279,7 @@
             "uid": "__expr__"
           },
           "expression": "USD",
-          "reducer": "lastNotNull",
+          "reducer": "last",
           "settings": {
             "mode": "dropNN"
           },
@@ -288,7 +293,7 @@
             "uid": "__expr__"
           },
           "expression": "FX",
-          "reducer": "lastNotNull",
+          "reducer": "last",
           "settings": {
             "mode": "dropNN"
           },
