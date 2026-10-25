@@ -30,6 +30,19 @@ variable "netrunner_prod_origin_verify_secret" {
   sensitive   = true
 }
 
+# DressMe — must match dressme AWS envs/*/ origin_verify_secret.
+variable "dressme_stg_origin_verify_secret" {
+  description = "X-Origin-Verify for dressme-stg.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
+variable "dressme_prod_origin_verify_secret" {
+  description = "X-Origin-Verify for dressme.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
 variable "api_rate_limit_period_seconds" {
   description = "Counting window for /api/scores rate limiting (Free: must be 10)."
   type        = number
