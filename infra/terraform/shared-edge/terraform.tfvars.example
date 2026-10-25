@@ -7,6 +7,8 @@ netrunner_stg_origin_verify_secret  = "replace-with-netrunner-stg-secret"
 netrunner_prod_origin_verify_secret = "replace-with-netrunner-prod-secret"
 dressme_stg_origin_verify_secret    = "replace-with-dressme-stg-secret"
 dressme_prod_origin_verify_secret   = "replace-with-dressme-prod-secret"
+homepage_stg_origin_verify_secret   = "replace-with-homepage-stg-secret"
+homepage_prod_origin_verify_secret  = "replace-with-homepage-prod-secret"
 
 # Optional Free-compatible /api/scores rate limit overrides:
 # api_rate_limit_period_seconds              = 10
