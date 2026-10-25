@@ -7,7 +7,7 @@ resource "cloudflare_ruleset" "origin_verify" {
   zone_id = local.zone_id
   # Keep name identical to live Cloudflare ruleset — renaming ForceNew-replaces the ruleset.
   name        = "Block Drop origin verify headers"
-  description = "Inject X-Origin-Verify so CloudFront accepts only Cloudflare-proxied traffic (Block Drop + Netrunner hosts)."
+  description = "Inject X-Origin-Verify so CloudFront accepts only Cloudflare-proxied traffic (Block Drop + Netrunner + DressMe hosts)."
   kind        = "zone"
   phase       = "http_request_late_transform"
 
@@ -65,6 +65,34 @@ resource "cloudflare_ruleset" "origin_verify" {
           "X-Origin-Verify" = {
             operation = "set"
             value     = var.netrunner_prod_origin_verify_secret
+          }
+        }
+      }
+    },
+    {
+      ref         = "dressme_stg_origin_verify"
+      description = "Staging DressMe origin verify"
+      expression  = "http.host eq \"dressme-stg.7oas7er.com\""
+      action      = "rewrite"
+      action_parameters = {
+        headers = {
+          "X-Origin-Verify" = {
+            operation = "set"
+            value     = var.dressme_stg_origin_verify_secret
+          }
+        }
+      }
+    },
+    {
+      ref         = "dressme_prod_origin_verify"
+      description = "Production DressMe origin verify"
+      expression  = "http.host eq \"dressme.7oas7er.com\""
+      action      = "rewrite"
+      action_parameters = {
+        headers = {
+          "X-Origin-Verify" = {
+            operation = "set"
+            value     = var.dressme_prod_origin_verify_secret
           }
         }
       }

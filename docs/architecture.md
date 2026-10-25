@@ -14,7 +14,7 @@
               ┌─────────────────┼─────────────────┐
               ▼                 ▼                 ▼
        ┌────────────┐    ┌────────────┐    ┌────────────┐
-       │ block-drop │    │ netrunner  │    │  future…   │
+       │ block-drop │    │ netrunner  │    │  dressme   │
        │  (app)     │    │  (app)     │    │  (app)     │
        └────────────┘    └────────────┘    └────────────┘
 ```
@@ -33,7 +33,7 @@
 
 ## Same AWS account, separate tags
 
-Apps may share one AWS account. Always tag taggable resources with `Project=<slug>` (`blockdrop`, `netrunner`, `platform`, …) plus `Environment` so Cost Explorer / console filters stay sane.
+Apps may share one AWS account. Always tag taggable resources with `Project=<slug>` (`blockdrop`, `netrunner`, `dressme`, `platform`, …) plus `Environment` so Cost Explorer / console filters stay sane.
 
 ## New app checklist (platform-aware)
 

@@ -5,6 +5,8 @@ blockdrop_stg_origin_verify_secret  = "replace-with-blockdrop-stg-secret"
 blockdrop_prod_origin_verify_secret = "replace-with-blockdrop-prod-secret"
 netrunner_stg_origin_verify_secret  = "replace-with-netrunner-stg-secret"
 netrunner_prod_origin_verify_secret = "replace-with-netrunner-prod-secret"
+dressme_stg_origin_verify_secret    = "replace-with-dressme-stg-secret"
+dressme_prod_origin_verify_secret   = "replace-with-dressme-prod-secret"
 
 # Optional Free-compatible /api/scores rate limit overrides:
 # api_rate_limit_period_seconds              = 10

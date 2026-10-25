@@ -2,7 +2,7 @@
 
 Owns the only zone rulesets for origin-verify, cache, redirects, rate-limit, and SSL mode.
 
-App repos must manage **DNS only** (Block Drop / Netrunner Cloudflare roots).
+App repos must manage **DNS only** (Block Drop / Netrunner / DressMe Cloudflare roots).
 
 ```bash
 export AWS_PROFILE=7oas7er-terraform
