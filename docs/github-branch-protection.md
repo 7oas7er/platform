@@ -28,6 +28,7 @@ One ruleset on `refs/heads/staging` and `refs/heads/main`:
 2. Block force pushes — on  
 3. Require a pull request before merging — on (0 approvals while solo)  
 4. Require status checks — **`Required CI`** only  
+5. Require signed commits — on (verified GPG; Frank’s key `413A590799A3CF31AB2C9ECDE27E5FD506790203` / `frank@schlesinger.com`)  
 
 ## Repo security floor (must match Block Drop)
 
@@ -38,7 +39,7 @@ One ruleset on `refs/heads/staging` and `refs/heads/main`:
 | Dependabot **alerts** | **Enabled** |
 | Secret scanning + push protection | **Enabled** |
 | CodeQL **default** setup | **Off** |
-| Branch ruleset `default` | **Active** on `main` + `staging` |
+| Branch ruleset `default` | **Active** on `main` + `staging` (incl. **require signed commits**) |
 | Actions `GITHUB_TOKEN` | **Read**; cannot approve PRs |
 | Issues / Wiki / Projects | **Off** |
 
@@ -65,4 +66,4 @@ gh api -X PUT "repos/$REPO/actions/permissions/workflow" \
 gh api repos/$REPO/rulesets --jq '.[] | {id,name,enforcement}'
 ```
 
-Verify: Dependabot alerts HTTP 204, `security_and_analysis.secret_scanning.status=enabled`, ruleset active on `main`+`staging`.
+Verify: Dependabot alerts HTTP 204, `security_and_analysis.secret_scanning.status=enabled`, ruleset active on `main`+`staging` with `required_signatures` in rules.
