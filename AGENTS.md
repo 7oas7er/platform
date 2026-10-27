@@ -16,7 +16,7 @@ This repo is the **shared platform** for isolated app repositories (Block Drop, 
 
 - Feature work: branch → PR → **`staging`**. Promote via **`staging` → `main`** when asked.
 - Do **not** push or merge unless Frank asks. Do **not** force-push protected branches.
-- **Security floor** (public repo, Dependabot alerts, secret scanning + push protection, ruleset, read-only `GITHUB_TOKEN`): apply and API-verify per [`docs/github-branch-protection.md`](docs/github-branch-protection.md). Private Free GitHub cannot host rulesets — keep this repo **public** like the app templates.
+- **Security floor** (public repo, Dependabot alerts, secret scanning + push protection, ruleset with **require signed commits**, read-only `GITHUB_TOKEN`): apply and API-verify per [`docs/github-branch-protection.md`](docs/github-branch-protection.md). Private Free GitHub cannot host rulesets — keep this repo **public** like the app templates. Signed commits are mandatory on `main`/`staging` (Frank’s GPG key `413A590799A3CF31AB2C9ECDE27E5FD506790203`).
 
 ## Definition of done
 
