@@ -2,6 +2,20 @@
 
 Helpers that live in this repo but are **not** Terraform. They contain **no secrets** — only CLI glue.
 
+## Cloudflare Client-side security
+
+Until the Cloudflare Terraform provider exposes a zone-level Page Shield enable
+resource ([#7006](https://github.com/cloudflare/terraform-provider-cloudflare/issues/7006)),
+turn on Free continuous script monitoring with:
+
+```bash
+export CLOUDFLARE_API_TOKEN=…   # needs Page Shield or Zone Settings Write
+./tools/enable-client-side-security
+```
+
+Optional: `CLOUDFLARE_ZONE_ID` (defaults to `7oas7er.com`). Run after
+`shared-edge` apply; the call is idempotent.
+
 ## Bitwarden ↔ `terraform.tfvars`
 
 Import local gitignored `terraform.tfvars` into Bitwarden, or recreate those files on a new machine from Secure Notes.

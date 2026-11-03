@@ -13,7 +13,7 @@ app repos ──► 7oas7er/platform   (never app ──► app)
 | Root | Purpose |
 |------|---------|
 | [`infra/terraform/bootstrap`](infra/terraform/bootstrap/) | S3 state bucket for platform roots |
-| [`infra/terraform/shared-edge`](infra/terraform/shared-edge/) | Zone rulesets: origin-verify, cache, redirects, rate-limit, SSL |
+| [`infra/terraform/shared-edge`](infra/terraform/shared-edge/) | Zone rulesets: origin-verify, cache, redirects, rate-limit, SSL, Free security toggles |
 | [`infra/terraform/shared-obs`](infra/terraform/shared-obs/) | Shared Grafana Infinity DS + GitHub plugin + platform cost dashboard (EUR) |
 
 **Apps own:** DNS CNAMEs, AWS site (S3/CloudFront/…), Grafana folder/dashboard/synthetics/CloudWatch/per-app GitHub DS, site CI deploy.
@@ -29,6 +29,8 @@ export CLOUDFLARE_API_TOKEN=…
 cd infra/terraform/bootstrap && terraform init && terraform apply
 cd ../shared-edge && cp terraform.tfvars.example terraform.tfvars   # fill secrets
 terraform init && terraform apply
+# Client-side security (Page Shield) — no TF resource yet
+../../../tools/enable-client-side-security
 cd ../shared-obs && cp terraform.tfvars.example terraform.tfvars
 terraform init && terraform apply
 ```
