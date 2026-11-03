@@ -11,7 +11,7 @@ Multiple public apps share zone `7oas7er.com` and one Grafana Cloud Free stack. 
 
 1. **Each app is its own GitHub repository** (product code, AWS site stack, DNS records, app Grafana dashboards/synthetics).
 2. **Shared multi-tenant edge and observability objects** live in [`7oas7er/platform`](https://github.com/7oas7er/platform):
-   - `infra/terraform/shared-edge` — origin-verify, cache, www/apex redirects, rate-limit, SSL, Free leaked-credentials detection (Bot Fight Mode opt-in; Client-side security via API until provider supports it)
+   - `infra/terraform/shared-edge` — origin-verify, cache, www/apex redirects, rate-limit, SSL Full strict + Always Use HTTPS + HSTS + min TLS 1.2 + DNSSEC, Free leaked-credentials detection (Bot Fight Mode opt-in; Client-side security via API until provider supports it)
    - `infra/terraform/shared-obs` — Infinity DS `infinity-cloudflare`, GitHub catalog plugin (pinned); platform cost dashboard owned under ADR 0002
 3. Dependency graph is **app → platform** only. **Never app → app.**
 4. Apply stays local (same policy as app Terraform ADRs).

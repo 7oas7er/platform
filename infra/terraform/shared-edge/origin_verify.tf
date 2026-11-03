@@ -127,9 +127,3 @@ resource "cloudflare_ruleset" "origin_verify" {
     },
   ]
 }
-
-resource "cloudflare_zone_setting" "ssl" {
-  zone_id    = local.zone_id
-  setting_id = "ssl"
-  value      = "strict"
-}
