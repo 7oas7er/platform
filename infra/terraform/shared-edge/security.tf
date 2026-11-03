@@ -30,5 +30,5 @@ resource "cloudflare_bot_management" "zone" {
 # Official cloudflare provider (through 5.28.x) has no zone-level enable resource
 # (only cloudflare_page_shield_policy, which needs Client-Side Security Advanced).
 # Tracker: https://github.com/cloudflare/terraform-provider-cloudflare/issues/7006
-# Apply companion: ../../../../tools/enable-client-side-security
+# Apply companion: ../../../tools/enable-client-side-security
 # (or the curl documented in shared-edge/README.md).
