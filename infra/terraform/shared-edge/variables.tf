@@ -56,6 +56,19 @@ variable "homepage_prod_origin_verify_secret" {
   sensitive   = true
 }
 
+# FUBoot Tours — must match fuboot-tours AWS envs/*/ origin_verify_secret.
+variable "fuboot_stg_origin_verify_secret" {
+  description = "X-Origin-Verify for fuboot-stg.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
+variable "fuboot_prod_origin_verify_secret" {
+  description = "X-Origin-Verify for fuboot.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
 variable "api_rate_limit_period_seconds" {
   description = "Counting window for /api/scores rate limiting (Free: must be 10)."
   type        = number

@@ -2,7 +2,7 @@ resource "cloudflare_ruleset" "cache" {
   zone_id = local.zone_id
   # Keep name identical to live Cloudflare ruleset — renaming ForceNew-replaces the ruleset.
   name        = "Block Drop cache settings"
-  description = "Respect origin Cache-Control for Block Drop, Netrunner, DressMe, and Homepage hosts; bypass Block Drop /api/scores."
+  description = "Respect origin Cache-Control for Block Drop, Netrunner, DressMe, Homepage, and FUBoot Tours hosts; bypass Block Drop /api/scores."
   kind        = "zone"
   phase       = "http_request_cache_settings"
 
@@ -65,6 +65,21 @@ resource "cloudflare_ruleset" "cache" {
       ref         = "homepage_respect_origin"
       description = "Respect origin Cache-Control for Homepage static assets"
       expression  = "(http.host in {\"www.7oas7er.com\" \"www-stg.7oas7er.com\"})"
+      action      = "set_cache_settings"
+      action_parameters = {
+        cache = true
+        edge_ttl = {
+          mode = "respect_origin"
+        }
+        browser_ttl = {
+          mode = "respect_origin"
+        }
+      }
+    },
+    {
+      ref         = "fuboot_respect_origin"
+      description = "Respect origin Cache-Control for FUBoot Tours static assets"
+      expression  = "(http.host in {\"fuboot.7oas7er.com\" \"fuboot-stg.7oas7er.com\"})"
       action      = "set_cache_settings"
       action_parameters = {
         cache = true
