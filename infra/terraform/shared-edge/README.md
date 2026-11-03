@@ -4,7 +4,7 @@ Owns the only zone rulesets for origin-verify, cache, redirects, rate-limit, and
 HTTPS/TLS settings (SSL Full strict, Always Use HTTPS, HSTS, min TLS 1.2, DNSSEC),
 plus Free security toggles (leaked-credentials detection; optional Bot Fight Mode).
 
-App repos must manage **DNS only** (Block Drop / Netrunner / DressMe / Homepage Cloudflare roots).
+App repos must manage **DNS only** (Block Drop / Netrunner / DressMe / Homepage / FUBoot Tours Cloudflare roots).
 
 ## Apply (local)
 
