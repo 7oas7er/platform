@@ -88,3 +88,14 @@ variable "api_rate_limit_mitigation_timeout_seconds" {
     error_message = "api_rate_limit_mitigation_timeout_seconds must be a Cloudflare-supported mitigation period."
   }
 }
+
+variable "enable_bot_fight_mode" {
+  description = <<-EOT
+    Bot Fight Mode (zone-wide JS challenges). Default false: Free BFM cannot be
+    skipped via WAF rules and commonly breaks Grafana synthetics, curl health
+    probes, headless CI, and non-browser /api clients. Set true only after an
+    explicit opt-in and post-apply synthetic/API checks.
+  EOT
+  type        = bool
+  default     = false
+}
