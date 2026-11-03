@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# Import local terraform.tfvars into Bitwarden as Secure Notes with hidden custom fields.
+# Scripts contain no secrets — they only read files on disk and talk to `bw`.
+#
+# Usage:
+#   export BW_SESSION="$(bw unlock --raw)"
+#   bw-import-tfvars [--dry-run] [DEVEL_ROOT]
+#
+# Defaults:
+#   DEVEL_ROOT = ~/SynologyDrive/private/devel
+#   Collection = $BW_TFVARS_COLLECTION or 7oas7er-terraform
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: bw-import-tfvars [--dry-run] [DEVEL_ROOT]
+
+Import gitignored terraform.tfvars under DEVEL_ROOT into Bitwarden as Secure
+Notes (one item per Terraform root) with hidden custom fields.
+
+  --dry-run   Parse and report what would be created; do not write to Bitwarden
+  -h, --help  Show this help
+
+Environment:
+  BW_SESSION              Required (bw unlock --raw)
+  BW_TFVARS_COLLECTION    Collection name (default: 7oas7er-terraform)
+
+Item name shape: "{project} / {relative/path}" e.g. "homepage / aws/envs/stg"
+
+Never prints secret values. Skip-if-exists on re-run.
+EOF
+}
+
+DRY_RUN=0
+ROOT=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      if [[ -n "$ROOT" ]]; then
+        echo "Unexpected argument: $1" >&2
+        usage >&2
+        exit 2
+      fi
+      ROOT="$1"
+      shift
+      ;;
+  esac
+done
+
+ROOT="${ROOT:-$HOME/SynologyDrive/private/devel}"
+COLLECTION_NAME="${BW_TFVARS_COLLECTION:-7oas7er-terraform}"
+
+if [[ -z "${BW_SESSION:-}" ]]; then
+  echo "Set BW_SESSION first: export BW_SESSION=\"\$(bw unlock --raw)\"" >&2
+  exit 1
+fi
+
+if [[ ! -d "$ROOT" ]]; then
+  echo "Devel root not found: $ROOT" >&2
+  exit 1
+fi
+
+for cmd in bw jq python3; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "Missing required command: $cmd" >&2
+    exit 1
+  fi
+done
+
+COLLECTION_ID="$(bw list collections --search "$COLLECTION_NAME" | jq -r --arg n "$COLLECTION_NAME" '.[] | select(.name==$n) | .id' | head -1 || true)"
+if [[ -z "$COLLECTION_ID" ]]; then
+  echo "warn: collection '$COLLECTION_NAME' not found; items will have no collection" >&2
+fi
+
+# Parse simple terraform.tfvars: key = "value" or key = 'value' (skips comments / blanks).
+parse_tfvars() {
+  local file="$1"
+  python3 - "$file" <<'PY'
+import json, re, sys
+path = sys.argv[1]
+fields = []
+pat = re.compile(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|(\S+))\s*$')
+with open(path, encoding="utf-8") as f:
+    for line in f:
+        s = line.strip()
+        if not s or s.startswith("#"):
+            continue
+        m = pat.match(s)
+        if not m:
+            continue
+        key = m.group(1)
+        val = m.group(2) if m.group(2) is not None else (m.group(3) if m.group(3) is not None else m.group(4))
+        fields.append({"name": key, "value": val, "type": 1})  # type 1 = hidden
+print(json.dumps(fields))
+PY
+}
+
+# Relative path under ROOT → item name, e.g. homepage / infra/terraform/aws/envs/stg
+item_name_for() {
+  local abs="$1"
+  local rel="${abs#"$ROOT"/}"
+  local proj="${rel%%/*}"
+  local rest="${rel#*/}"
+  rest="${rest%/terraform.tfvars}"
+  echo "${proj} / ${rest}"
+}
+
+imported=0
+skipped=0
+
+while IFS= read -r -d '' tfvars; do
+  name="$(item_name_for "$tfvars")"
+  existing="$(bw list items --search "$name" | jq -r --arg n "$name" '.[] | select(.name==$n) | .id' | head -1 || true)"
+  if [[ -n "$existing" ]]; then
+    echo "skip (exists): $name" >&2
+    skipped=$((skipped + 1))
+    continue
+  fi
+
+  fields_json="$(parse_tfvars "$tfvars")"
+  field_count="$(jq 'length' <<<"$fields_json")"
+  if [[ "$field_count" -eq 0 ]]; then
+    echo "skip (no keys): $name" >&2
+    skipped=$((skipped + 1))
+    continue
+  fi
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "would create: $name ($field_count fields)" >&2
+    imported=$((imported + 1))
+    continue
+  fi
+
+  template="$(bw get template item)"
+  item="$(jq \
+    --arg name "$name" \
+    --arg notes "Imported from ${tfvars#"$HOME"/} on $(hostname -s) $(date -u +%Y-%m-%d)" \
+    --argjson fields "$fields_json" \
+    --argjson coll "$(jq -n --arg id "${COLLECTION_ID:-}" 'if $id=="" then [] else [$id] end')" \
+    '.type = 2
+     | .secureNote.type = 0
+     | .name = $name
+     | .notes = $notes
+     | .fields = $fields
+     | .collectionIds = $coll
+     | .login = null' <<<"$template")"
+
+  echo "$item" | bw encode | bw create item >/dev/null
+  echo "created: $name ($field_count fields)" >&2
+  imported=$((imported + 1))
+done < <(find "$ROOT" -type f -name 'terraform.tfvars' -print0)
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "Dry-run done. would_create=$imported skipped=$skipped" >&2
+else
+  echo "Done. created=$imported skipped=$skipped" >&2
+fi
