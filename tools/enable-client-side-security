@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Enable Cloudflare Client-side security (Page Shield) script monitoring for a zone.
+# Companion to shared-edge until cloudflare/terraform-provider-cloudflare#7006 lands.
+# Contains no secrets — reads CLOUDFLARE_API_TOKEN from the environment.
+set -euo pipefail
+
+ZONE_ID="${CLOUDFLARE_ZONE_ID:-701810fff825f90c0eea671970a0cc9e}"
+
+if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+  echo "error: set CLOUDFLARE_API_TOKEN" >&2
+  exit 1
+fi
+
+resp="$(curl -sS -X PUT "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/page_shield" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled":true,"use_cloudflare_reporting_endpoint":true}')"
+
+ok="$(printf '%s' "$resp" | sed -n 's/.*"success"[[:space:]]*:[[:space:]]*\(true\|false\).*/\1/p' | head -1)"
+if [[ "$ok" != "true" ]]; then
+  echo "error: page_shield enable failed" >&2
+  printf '%s\n' "$resp" >&2
+  exit 1
+fi
+
+enabled="$(printf '%s' "$resp" | sed -n 's/.*"enabled"[[:space:]]*:[[:space:]]*\(true\|false\).*/\1/p' | head -1)"
+echo "client-side security enabled=${enabled:-?} zone=${ZONE_ID}"

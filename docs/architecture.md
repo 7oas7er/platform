@@ -13,17 +13,17 @@
                                 │
               ┌─────────────────┼─────────────────┐
               ▼                 ▼                 ▼
-       ┌────────────┐    ┌────────────┐    ┌────────────┐
-       │ block-drop │    │ netrunner  │    │  dressme   │
-       │  (app)     │    │  (app)     │    │  (app)     │
-       └────────────┘    └────────────┘    └────────────┘
+       ┌────────────┐    ┌────────────┐    ┌────────────┐    ┌─────────────┐
+       │ block-drop │    │ netrunner  │    │  dressme   │    │ fuboot-tours│
+       │  (app)     │    │  (app)     │    │  (app)     │    │  (app)      │
+       └────────────┘    └────────────┘    └────────────┘    └─────────────┘
 ```
 
 ## What lives where
 
 | Concern | Owner |
 |---------|--------|
-| Zone rulesets (origin-verify, cache, redirects, rate-limit, SSL) | platform `shared-edge` |
+| Zone rulesets (origin-verify, cache, redirects, rate-limit) + HTTPS/TLS (SSL Full strict, Always Use HTTPS, HSTS, min TLS 1.2, DNSSEC) + Free security toggles (leaked-credentials; optional Bot Fight Mode; Client-side security via API companion) | platform `shared-edge` |
 | Shared Grafana Infinity DS + GitHub **plugin** | platform `shared-obs` |
 | Platform cost overview (EUR; non-AWS feed + live AWS Billing metrics) | platform `shared-obs` |
 | App DNS (host CNAMEs) | each app `infra/terraform/cloudflare` |
@@ -33,7 +33,7 @@
 
 ## Same AWS account, separate tags
 
-Apps may share one AWS account. Always tag taggable resources with `Project=<slug>` (`blockdrop`, `netrunner`, `dressme`, `platform`, …) plus `Environment` so Cost Explorer / console filters stay sane.
+Apps may share one AWS account. Always tag taggable resources with `Project=<slug>` (`blockdrop`, `netrunner`, `dressme`, `fuboot-tours`, `platform`, …) plus `Environment` so Cost Explorer / console filters stay sane.
 
 ## New app checklist (platform-aware)
 
