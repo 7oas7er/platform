@@ -56,6 +56,19 @@ variable "homepage_prod_origin_verify_secret" {
   sensitive   = true
 }
 
+# FUBoot Tours — must match fuboot-tours AWS envs/*/ origin_verify_secret.
+variable "fuboot_stg_origin_verify_secret" {
+  description = "X-Origin-Verify for fuboot-stg.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
+variable "fuboot_prod_origin_verify_secret" {
+  description = "X-Origin-Verify for fuboot.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
 variable "api_rate_limit_period_seconds" {
   description = "Counting window for /api/scores rate limiting (Free: must be 10)."
   type        = number
@@ -87,4 +100,15 @@ variable "api_rate_limit_mitigation_timeout_seconds" {
     condition     = contains([10, 15, 20, 30, 40, 45, 60, 90, 120, 180, 240, 300, 480, 600, 900, 1200, 1800, 2400, 3600, 65535, 86400], var.api_rate_limit_mitigation_timeout_seconds)
     error_message = "api_rate_limit_mitigation_timeout_seconds must be a Cloudflare-supported mitigation period."
   }
+}
+
+variable "enable_bot_fight_mode" {
+  description = <<-EOT
+    Bot Fight Mode (zone-wide JS challenges). Default false: Free BFM cannot be
+    skipped via WAF rules and commonly breaks Grafana synthetics, curl health
+    probes, headless CI, and non-browser /api clients. Set true only after an
+    explicit opt-in and post-apply synthetic/API checks.
+  EOT
+  type        = bool
+  default     = false
 }

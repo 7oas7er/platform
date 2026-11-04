@@ -7,7 +7,7 @@ resource "cloudflare_ruleset" "origin_verify" {
   zone_id = local.zone_id
   # Keep name identical to live Cloudflare ruleset — renaming ForceNew-replaces the ruleset.
   name        = "Block Drop origin verify headers"
-  description = "Inject X-Origin-Verify so CloudFront accepts only Cloudflare-proxied traffic (Block Drop + Netrunner + DressMe + Homepage hosts)."
+  description = "Inject X-Origin-Verify so CloudFront accepts only Cloudflare-proxied traffic (Block Drop + Netrunner + DressMe + Homepage + FUBoot Tours hosts)."
   kind        = "zone"
   phase       = "http_request_late_transform"
 
@@ -125,11 +125,33 @@ resource "cloudflare_ruleset" "origin_verify" {
         }
       }
     },
+    {
+      ref         = "fuboot_stg_origin_verify"
+      description = "Staging FUBoot Tours origin verify"
+      expression  = "http.host eq \"fuboot-stg.7oas7er.com\""
+      action      = "rewrite"
+      action_parameters = {
+        headers = {
+          "X-Origin-Verify" = {
+            operation = "set"
+            value     = var.fuboot_stg_origin_verify_secret
+          }
+        }
+      }
+    },
+    {
+      ref         = "fuboot_prod_origin_verify"
+      description = "Production FUBoot Tours origin verify"
+      expression  = "http.host eq \"fuboot.7oas7er.com\""
+      action      = "rewrite"
+      action_parameters = {
+        headers = {
+          "X-Origin-Verify" = {
+            operation = "set"
+            value     = var.fuboot_prod_origin_verify_secret
+          }
+        }
+      }
+    },
   ]
-}
-
-resource "cloudflare_zone_setting" "ssl" {
-  zone_id    = local.zone_id
-  setting_id = "ssl"
-  value      = "strict"
 }
