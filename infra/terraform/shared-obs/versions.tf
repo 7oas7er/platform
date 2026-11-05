@@ -10,6 +10,10 @@ terraform {
       source  = "grafana/grafana"
       version = "~> 4.0"
     }
+    grafana-adaptive-metrics = {
+      source  = "grafana/grafana-adaptive-metrics"
+      version = "~> 0.4"
+    }
     time = {
       source  = "hashicorp/time"
       version = "~> 0.13"

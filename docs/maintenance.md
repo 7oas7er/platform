@@ -14,6 +14,7 @@
 [ ] Open Dependabot PRs on staging — merge when CI is green
 [ ] Clear or explicitly waive high/critical Dependabot / code-scanning alerts
 [ ] Glance Grafana Costs (EUR) / AWS scrape and shared synthetics health (optional)
+[ ] Adaptive Metrics: Auto-apply still OFF; only DROP unused probe_/lambda_/unused CloudFront series (shared-obs README)
 ```
 
 ## Monthly
