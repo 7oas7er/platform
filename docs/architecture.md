@@ -23,7 +23,7 @@
 
 | Concern | Owner |
 |---------|--------|
-| Zone rulesets (origin-verify, cache, redirects, rate-limit) + HTTPS/TLS (SSL Full strict, Always Use HTTPS, HSTS, min TLS 1.2, DNSSEC) + Free security toggles (leaked-credentials; optional Bot Fight Mode; Client-side security via API companion) | platform `shared-edge` |
+| Zone rulesets (origin-verify, cache, redirects, rate-limit) + HTTPS/TLS (SSL Full strict, Always Use HTTPS, HSTS, min TLS 1.2, DNSSEC) + Free security toggles (leaked-credentials; optional Bot Fight Mode; Client-side security via API companion) + zone email auth (SPF/DMARC) and optional Cloudflare Email Routing (inbound) | platform `shared-edge` |
 | Shared Grafana Infinity DS + GitHub **plugin** | platform `shared-obs` |
 | Platform cost overview (EUR; non-AWS feed + live AWS Billing metrics) | platform `shared-obs` |
 | Adaptive Metrics DROP-only rules (opt-in; Auto-apply off) | platform `shared-obs` |
