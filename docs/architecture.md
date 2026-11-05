@@ -26,6 +26,7 @@
 | Zone rulesets (origin-verify, cache, redirects, rate-limit) + HTTPS/TLS (SSL Full strict, Always Use HTTPS, HSTS, min TLS 1.2, DNSSEC) + Free security toggles (leaked-credentials; optional Bot Fight Mode; Client-side security via API companion) | platform `shared-edge` |
 | Shared Grafana Infinity DS + GitHub **plugin** | platform `shared-obs` |
 | Platform cost overview (EUR; non-AWS feed + live AWS Billing metrics) | platform `shared-obs` |
+| Adaptive Metrics DROP-only rules (opt-in; Auto-apply off) | platform `shared-obs` |
 | App DNS (host CNAMEs) | each app `infra/terraform/cloudflare` |
 | App AWS (S3, CloudFront, IAM deploy/plan, Lambda…) | each app `infra/terraform/aws` |
 | App Grafana (folder, dashboard, synthetics, CW scrape, per-app GitHub DS) | each app `infra/terraform/grafana` |
