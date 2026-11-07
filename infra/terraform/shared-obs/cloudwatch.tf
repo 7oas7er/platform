@@ -37,7 +37,7 @@ resource "grafana_cloud_provider_aws_cloudwatch_scrape_job" "billing" {
 
     # EstimatedCharges publishes Currency (account total) and Currency+ServiceName
     # (per-service MTD). Leaving dimension filters unset scrapes all combinations
-    # → Prometheus labels currency + optional service_name for by-service panels.
+    # → Prometheus labels dimension_Currency + optional dimension_ServiceName.
     metric {
       name       = "EstimatedCharges"
       statistics = ["Maximum"]

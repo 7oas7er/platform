@@ -43,8 +43,8 @@ Uses the **same auth path as app CloudWatch scrape** (not a CloudWatch data sour
 
 Dashboard panels query Prometheus:
 
-- **Total:** `max(aws_billing_estimated_charges_maximum{currency="USD",project="platform"})` → USD→EUR via Frankfurter
-- **By service:** `max by (service_name) (…{service_name=~".+"})` (USD; `ServiceName` dimension)
+- **Total:** `max(aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"})` → USD→EUR via Frankfurter (`api.frankfurter.dev`)
+- **By service:** `max by (dimension_ServiceName) (…{dimension_ServiceName=~".+"})` (USD; Cloud Provider keeps the `dimension_` prefix)
 
 These are **EstimatedCharges** (billing alerts), not Cost Explorer / invoice. AWS updates a few times per day; scrape is every 5m. Tag / `Project=` splits remain a later Cost Explorer / CUR item (ADR 0002).
 
