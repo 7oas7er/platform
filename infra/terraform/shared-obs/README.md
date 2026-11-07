@@ -41,7 +41,12 @@ Uses the **same auth path as app CloudWatch scrape** (not a CloudWatch data sour
 
 5. **No account yet:** leave `grafana_aws_account_resource_id` unset; Terraform creates account `platform` + IAM role (fails if the AWS account is already registered under another name — then use step 4).
 
-Dashboard panels query Prometheus `aws_billing_estimated_charges_maximum{currency="USD",project="platform"}` and convert USD→EUR via Frankfurter.
+Dashboard panels query Prometheus:
+
+- **Total:** `max(aws_billing_estimated_charges_maximum{currency="USD",project="platform"})` → USD→EUR via Frankfurter
+- **By service:** `max by (service_name) (…{service_name=~".+"})` (USD; `ServiceName` dimension)
+
+These are **EstimatedCharges** (billing alerts), not Cost Explorer / invoice. AWS updates a few times per day; scrape is every 5m. Tag / `Project=` splits remain a later Cost Explorer / CUR item (ADR 0002).
 
 ### Non-AWS vendors (manual)
 
