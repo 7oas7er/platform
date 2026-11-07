@@ -4,7 +4,7 @@
 AWS month-to-date spend is live via Grafana Cloud Provider scrape of
 AWS/Billing EstimatedCharges into Prometheus (USD) × Frankfurter USD→EUR.
 Per-service series use the ServiceName dimension (Prometheus label
-service_name). Set aws_live false in monthly.json to omit those panels.
+dimension_ServiceName). Set aws_live false in monthly.json to omit those panels.
 
 Usage (from shared-obs root):
   python3 scripts/generate-costs-dashboard.py
@@ -30,18 +30,19 @@ PROMETHEUS = {
 EXPR = {"type": "__expr__", "uid": "__expr__"}
 MIXED = {"type": "datasource", "uid": "-- Mixed --"}
 
-# Grafana CloudWatch scrape → Prom naming (namespace/metric/stat → snake_case).
-# Currency dimension → currency="USD". ServiceName → service_name when present.
-# Account total is Currency-only (no service_name); max() also works because the
-# account total is ≥ any single service.
+# Grafana Cloud Provider scrape → Prom naming (namespace/metric/stat → snake_case).
+# CloudWatch dimensions keep a dimension_ prefix: Currency → dimension_Currency,
+# ServiceName → dimension_ServiceName (not currency / service_name).
+# Account total is Currency-only (no dimension_ServiceName); max() also works
+# because the account total is ≥ any single service.
 AWS_BILLING_TOTAL_PROMQL = (
-    'max(aws_billing_estimated_charges_maximum{currency="USD",project="platform"})'
+    'max(aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"})'
 )
 # By-service MTD estimates (ServiceName dimension). Exclude empty label noise.
 AWS_BILLING_BY_SERVICE_PROMQL = (
-    "max by (service_name) ("
-    'aws_billing_estimated_charges_maximum{currency="USD",project="platform",'
-    'service_name=~".+"}'
+    "max by (dimension_ServiceName) ("
+    'aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform",'
+    'dimension_ServiceName=~".+"}'
     ")"
 )
 
@@ -100,13 +101,15 @@ def inline_target(
 
 def frankfurter_target(ref_id: str = "FX") -> dict:
     # Time column so SSE reduce(last) can treat the frame like a series.
+    # Host must be api.frankfurter.dev (api.frankfurter.app 301s there; Infinity
+    # refuses the redirect unless that host is in allowedHosts).
     return {
         "refId": ref_id,
         "type": "json",
         "source": "url",
         "format": "timeseries",
         "parser": "backend",
-        "url": "https://api.frankfurter.app/latest?from=USD&to=EUR",
+        "url": "https://api.frankfurter.dev/v1/latest?from=USD&to=EUR",
         "url_options": {"method": "GET", "data": ""},
         "root_selector": "",
         "columns": [
@@ -138,7 +141,7 @@ def prometheus_aws_billing_by_service(
     return {
         "refId": ref_id,
         "expr": AWS_BILLING_BY_SERVICE_PROMQL,
-        "legendFormat": "{{service_name}}",
+        "legendFormat": "{{dimension_ServiceName}}",
         "range": not instant,
         "instant": instant,
         "exemplar": False,
@@ -513,7 +516,7 @@ def build_dashboard(costs: dict) -> dict:
                             {
                                 "matcher": {
                                     "id": "byName",
-                                    "options": "service_name",
+                                    "options": "dimension_ServiceName",
                                 },
                                 "properties": [
                                     {"id": "displayName", "value": "Service"},
@@ -549,7 +552,7 @@ def build_dashboard(costs: dict) -> dict:
                     "transformations": [
                         {
                             "id": "labelsToFields",
-                            "options": {"mode": "columns", "keepLabels": ["service_name"]},
+                            "options": {"mode": "columns", "keepLabels": ["dimension_ServiceName"]},
                         },
                         {
                             "id": "merge",

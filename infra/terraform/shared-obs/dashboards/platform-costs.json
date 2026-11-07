@@ -212,7 +212,7 @@
       "targets": [
         {
           "refId": "USD",
-          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -229,7 +229,7 @@
           "source": "url",
           "format": "timeseries",
           "parser": "backend",
-          "url": "https://api.frankfurter.app/latest?from=USD&to=EUR",
+          "url": "https://api.frankfurter.dev/v1/latest?from=USD&to=EUR",
           "url_options": {
             "method": "GET",
             "data": ""
@@ -346,7 +346,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -402,7 +402,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -465,8 +465,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (service_name) (aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\",service_name=~\".+\"})",
-          "legendFormat": "{{service_name}}",
+          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "legendFormat": "{{dimension_ServiceName}}",
           "range": true,
           "instant": false,
           "exemplar": false,
@@ -529,8 +529,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (service_name) (aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\",service_name=~\".+\"})",
-          "legendFormat": "{{service_name}}",
+          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "legendFormat": "{{dimension_ServiceName}}",
           "range": false,
           "instant": true,
           "exemplar": false,
@@ -573,7 +573,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "service_name"
+              "options": "dimension_ServiceName"
             },
             "properties": [
               {
@@ -632,7 +632,7 @@
           "options": {
             "mode": "columns",
             "keepLabels": [
-              "service_name"
+              "dimension_ServiceName"
             ]
           }
         },
@@ -656,8 +656,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (service_name) (aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\",service_name=~\".+\"})",
-          "legendFormat": "{{service_name}}",
+          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "legendFormat": "{{dimension_ServiceName}}",
           "range": false,
           "instant": true,
           "exemplar": false,
