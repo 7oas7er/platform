@@ -1,7 +1,7 @@
 {
   "uid": "platform-costs",
   "title": "Platform \u2014 Costs (EUR)",
-  "description": "Cross-project operator spend (EUR). Non-AWS from costs/monthly.json; AWS from Prometheus (Cloud Provider billing scrape) \u00d7 Frankfurter when aws_live.",
+  "description": "Cross-project operator spend (EUR). Non-AWS from costs/monthly.json; AWS total + by-service from Prometheus (Cloud Provider billing scrape) \u00d7 Frankfurter on totals when aws_live.",
   "tags": [
     "platform",
     "costs",
@@ -11,7 +11,7 @@
   ],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 3,
+  "version": 4,
   "refresh": "1h",
   "time": {
     "from": "now-30d",
@@ -64,7 +64,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-10`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1) \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR. One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every 5m \u2014 no monthly.json edit."
+        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-10`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1). Account total \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR; by-service panels use the `ServiceName` dimension (USD). Estimates only \u2014 AWS publishes a few times/day (not invoice settlement; ~hours lag). One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every 5m \u2014 no monthly.json edit. Tag/`Project=` splits need Cost Explorer / CUR later (ADR 0002)."
       }
     },
     {
@@ -212,7 +212,7 @@
       "targets": [
         {
           "refId": "USD",
-          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -229,7 +229,7 @@
           "source": "url",
           "format": "timeseries",
           "parser": "backend",
-          "url": "https://api.frankfurter.app/latest?from=USD&to=EUR",
+          "url": "https://api.frankfurter.dev/v1/latest?from=USD&to=EUR",
           "url_options": {
             "method": "GET",
             "data": ""
@@ -346,7 +346,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -363,7 +363,7 @@
       "id": 12,
       "type": "timeseries",
       "title": "AWS estimated charges (USD, MTD)",
-      "description": "Scraped billing metric history for the selected range.",
+      "description": "Account-level EstimatedCharges history for the selected range (Currency dimension).",
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -402,12 +402,267 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(aws_billing_estimated_charges_maximum{currency=\"USD\",project=\"platform\"})",
+          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
           "exemplar": false,
           "hide": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "AWS by service (USD, MTD)",
+      "description": "EstimatedCharges with ServiceName dimension. MTD gauges per service \u2014 stacked for share over the selected range. USD estimates; not Cost Explorer / invoice.",
+      "gridPos": {
+        "h": 9,
+        "w": 16,
+        "x": 0,
+        "y": 18
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 40,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "spanNulls": true,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "legendFormat": "{{dimension_ServiceName}}",
+          "range": true,
+          "instant": false,
+          "exemplar": false,
+          "hide": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          }
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "piechart",
+      "title": "AWS share by service (USD, latest)",
+      "description": "Latest scraped EstimatedCharges per ServiceName. Empty until billing alerts publish per-service metrics.",
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 18
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "pieType": "donut",
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "legendFormat": "{{dimension_ServiceName}}",
+          "range": false,
+          "instant": true,
+          "exemplar": false,
+          "hide": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheus}"
+          }
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "table",
+      "title": "AWS by service (USD, latest)",
+      "description": "Instant query of EstimatedCharges by ServiceName. Sorted in the panel; amounts are MTD estimates in USD.",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheus}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "dimension_ServiceName"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Service"
+              },
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "USD MTD"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": true,
+          "reducer": [
+            "sum"
+          ],
+          "fields": "",
+          "countRows": false
+        },
+        "sortBy": [
+          {
+            "displayName": "USD MTD",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns",
+            "keepLabels": [
+              "dimension_ServiceName"
+            ]
+          }
+        },
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "currency": true,
+              "project": true
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "legendFormat": "{{dimension_ServiceName}}",
+          "range": false,
+          "instant": true,
+          "exemplar": false,
+          "hide": false,
+          "format": "table",
           "datasource": {
             "type": "prometheus",
             "uid": "${prometheus}"
@@ -423,7 +678,7 @@
         "h": 10,
         "w": 9,
         "x": 0,
-        "y": 18
+        "y": 37
       },
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
@@ -509,7 +764,7 @@
         "h": 10,
         "w": 15,
         "x": 9,
-        "y": 18
+        "y": 37
       },
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
@@ -585,7 +840,7 @@
         "h": 10,
         "w": 14,
         "x": 0,
-        "y": 28
+        "y": 47
       },
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
@@ -681,7 +936,7 @@
         "h": 10,
         "w": 10,
         "x": 14,
-        "y": 28
+        "y": 47
       },
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",

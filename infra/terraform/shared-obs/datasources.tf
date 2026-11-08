@@ -30,6 +30,9 @@ resource "grafana_data_source" "platform_infinity" {
   json_data_encoded = jsonencode({
     auth_method = "none"
     allowedHosts = [
+      # Canonical FX host (api.frankfurter.app 301s here; Infinity blocks redirect
+      # unless the destination is allowlisted).
+      "https://api.frankfurter.dev",
       "https://api.frankfurter.app",
       "https://api.github.com",
       "https://api.cloudflare.com",

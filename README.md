@@ -13,7 +13,7 @@ app repos ──► 7oas7er/platform   (never app ──► app)
 | Path | Role |
 |------|------|
 | [`infra/terraform/bootstrap`](infra/terraform/bootstrap/) | S3 state bucket for platform Terraform roots |
-| [`infra/terraform/shared-edge`](infra/terraform/shared-edge/) | Zone rulesets: origin-verify, cache, redirects, rate-limit, SSL/HTTPS/HSTS/DNSSEC, Free security toggles |
+| [`infra/terraform/shared-edge`](infra/terraform/shared-edge/) | Zone rulesets: origin-verify, cache, redirects, rate-limit, SSL/HTTPS/HSTS/DNSSEC, Free security toggles, email auth + optional Email Routing |
 | [`infra/terraform/shared-obs`](infra/terraform/shared-obs/) | Shared Grafana Infinity DS + GitHub plugin + platform cost dashboard (EUR) |
 | [`tools/`](tools/) | Non-TF helpers (Client-side security enable; Bitwarden ↔ tfvars) — see [`tools/README.md`](tools/README.md) |
 | [`.cursor/rules/`](.cursor/rules/) | Platform Cursor rules (`platform-core`) |

@@ -3,7 +3,8 @@
 
 AWS month-to-date spend is live via Grafana Cloud Provider scrape of
 AWS/Billing EstimatedCharges into Prometheus (USD) × Frankfurter USD→EUR.
-Set aws_live false in monthly.json to omit those panels.
+Per-service series use the ServiceName dimension (Prometheus label
+dimension_ServiceName). Set aws_live false in monthly.json to omit those panels.
 
 Usage (from shared-obs root):
   python3 scripts/generate-costs-dashboard.py
@@ -29,10 +30,20 @@ PROMETHEUS = {
 EXPR = {"type": "__expr__", "uid": "__expr__"}
 MIXED = {"type": "datasource", "uid": "-- Mixed --"}
 
-# Grafana CloudWatch scrape → Prom naming (namespace/metric/stat → snake_case).
-# Currency dimension becomes label currency="USD".
-AWS_BILLING_PROMQL = (
-    'max(aws_billing_estimated_charges_maximum{currency="USD",project="platform"})'
+# Grafana Cloud Provider scrape → Prom naming (namespace/metric/stat → snake_case).
+# CloudWatch dimensions keep a dimension_ prefix: Currency → dimension_Currency,
+# ServiceName → dimension_ServiceName (not currency / service_name).
+# Account total is Currency-only (no dimension_ServiceName); max() also works
+# because the account total is ≥ any single service.
+AWS_BILLING_TOTAL_PROMQL = (
+    'max(aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"})'
+)
+# By-service MTD estimates (ServiceName dimension). Exclude empty label noise.
+AWS_BILLING_BY_SERVICE_PROMQL = (
+    "max by (dimension_ServiceName) ("
+    'aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform",'
+    'dimension_ServiceName=~".+"}'
+    ")"
 )
 
 
@@ -90,13 +101,15 @@ def inline_target(
 
 def frankfurter_target(ref_id: str = "FX") -> dict:
     # Time column so SSE reduce(last) can treat the frame like a series.
+    # Host must be api.frankfurter.dev (api.frankfurter.app 301s there; Infinity
+    # refuses the redirect unless that host is in allowedHosts).
     return {
         "refId": ref_id,
         "type": "json",
         "source": "url",
         "format": "timeseries",
         "parser": "backend",
-        "url": "https://api.frankfurter.app/latest?from=USD&to=EUR",
+        "url": "https://api.frankfurter.dev/v1/latest?from=USD&to=EUR",
         "url_options": {"method": "GET", "data": ""},
         "root_selector": "",
         "columns": [
@@ -111,10 +124,26 @@ def frankfurter_target(ref_id: str = "FX") -> dict:
 def prometheus_aws_billing(ref_id: str = "USD") -> dict:
     return {
         "refId": ref_id,
-        "expr": AWS_BILLING_PROMQL,
+        "expr": AWS_BILLING_TOTAL_PROMQL,
         "legendFormat": "AWS USD MTD",
         "range": True,
         "instant": False,
+        "exemplar": False,
+        "hide": False,
+    }
+
+
+def prometheus_aws_billing_by_service(
+    ref_id: str = "SVC",
+    *,
+    instant: bool = False,
+) -> dict:
+    return {
+        "refId": ref_id,
+        "expr": AWS_BILLING_BY_SERVICE_PROMQL,
+        "legendFormat": "{{dimension_ServiceName}}",
+        "range": not instant,
+        "instant": instant,
         "exemplar": False,
         "hide": False,
     }
@@ -200,10 +229,13 @@ def build_dashboard(costs: dict) -> dict:
     if aws_live:
         about += (
             "**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` "
-            "`EstimatedCharges` into Prometheus (USD, us-east-1) × "
-            "[Frankfurter](https://www.frankfurter.app/) USD→EUR. One-time: enable "
+            "`EstimatedCharges` into Prometheus (USD, us-east-1). Account total × "
+            "[Frankfurter](https://www.frankfurter.app/) USD→EUR; by-service panels "
+            "use the `ServiceName` dimension (USD). Estimates only — AWS publishes "
+            "a few times/day (not invoice settlement; ~hours lag). One-time: enable "
             "**Receive CloudWatch Billing Alerts** in AWS Billing preferences. "
-            "Scrape every 5m — no monthly.json edit."
+            "Scrape every 5m — no monthly.json edit. Tag/`Project=` splits need "
+            "Cost Explorer / CUR later (ADR 0002)."
         )
     else:
         about += "AWS live panels disabled (`aws_live: false`)."
@@ -343,7 +375,10 @@ def build_dashboard(costs: dict) -> dict:
                     "id": 12,
                     "type": "timeseries",
                     "title": "AWS estimated charges (USD, MTD)",
-                    "description": "Scraped billing metric history for the selected range.",
+                    "description": (
+                        "Account-level EstimatedCharges history for the selected "
+                        "range (Currency dimension)."
+                    ),
                     "gridPos": {"h": 8, "w": 24, "x": 0, "y": 10},
                     "datasource": PROMETHEUS,
                     "fieldConfig": {
@@ -375,9 +410,178 @@ def build_dashboard(costs: dict) -> dict:
                         }
                     ],
                 },
+                {
+                    "id": 13,
+                    "type": "timeseries",
+                    "title": "AWS by service (USD, MTD)",
+                    "description": (
+                        "EstimatedCharges with ServiceName dimension. MTD gauges "
+                        "per service — stacked for share over the selected range. "
+                        "USD estimates; not Cost Explorer / invoice."
+                    ),
+                    "gridPos": {"h": 9, "w": 16, "x": 0, "y": 18},
+                    "datasource": PROMETHEUS,
+                    "fieldConfig": {
+                        "defaults": {
+                            "unit": "currencyUSD",
+                            "decimals": 2,
+                            "custom": {
+                                "drawStyle": "line",
+                                "lineWidth": 1,
+                                "fillOpacity": 40,
+                                "stacking": {"mode": "normal", "group": "A"},
+                                "spanNulls": True,
+                                "showPoints": "never",
+                            },
+                        },
+                        "overrides": [],
+                    },
+                    "options": {
+                        "legend": {
+                            "displayMode": "table",
+                            "placement": "right",
+                            "showLegend": True,
+                            "calcs": ["lastNotNull"],
+                        },
+                        "tooltip": {"mode": "multi", "sort": "desc"},
+                    },
+                    "targets": [
+                        {
+                            **prometheus_aws_billing_by_service("A"),
+                            "datasource": PROMETHEUS,
+                        }
+                    ],
+                },
+                {
+                    "id": 14,
+                    "type": "piechart",
+                    "title": "AWS share by service (USD, latest)",
+                    "description": (
+                        "Latest scraped EstimatedCharges per ServiceName. "
+                        "Empty until billing alerts publish per-service metrics."
+                    ),
+                    "gridPos": {"h": 9, "w": 8, "x": 16, "y": 18},
+                    "datasource": PROMETHEUS,
+                    "fieldConfig": {
+                        "defaults": {
+                            "unit": "currencyUSD",
+                            "decimals": 2,
+                        },
+                        "overrides": [],
+                    },
+                    "options": {
+                        "pieType": "donut",
+                        "displayLabels": ["percent"],
+                        "legend": {
+                            "displayMode": "table",
+                            "placement": "right",
+                            "showLegend": True,
+                            "values": ["value", "percent"],
+                        },
+                        "reduceOptions": {
+                            "calcs": ["lastNotNull"],
+                            "fields": "",
+                            "values": False,
+                        },
+                        "tooltip": {"mode": "single", "sort": "none"},
+                    },
+                    "targets": [
+                        {
+                            **prometheus_aws_billing_by_service("A", instant=True),
+                            "datasource": PROMETHEUS,
+                        }
+                    ],
+                },
+                {
+                    "id": 15,
+                    "type": "table",
+                    "title": "AWS by service (USD, latest)",
+                    "description": (
+                        "Instant query of EstimatedCharges by ServiceName. "
+                        "Sorted in the panel; amounts are MTD estimates in USD."
+                    ),
+                    "gridPos": {"h": 10, "w": 24, "x": 0, "y": 27},
+                    "datasource": PROMETHEUS,
+                    "fieldConfig": {
+                        "defaults": {
+                            "unit": "currencyUSD",
+                            "decimals": 2,
+                            "custom": {
+                                "align": "auto",
+                                "cellOptions": {"type": "auto"},
+                                "inspect": False,
+                            },
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "dimension_ServiceName",
+                                },
+                                "properties": [
+                                    {"id": "displayName", "value": "Service"},
+                                    {"id": "custom.width", "value": 280},
+                                ],
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Value",
+                                },
+                                "properties": [
+                                    {"id": "displayName", "value": "USD MTD"},
+                                    {"id": "unit", "value": "currencyUSD"},
+                                    {"id": "decimals", "value": 2},
+                                ],
+                            },
+                        ],
+                    },
+                    "options": {
+                        "showHeader": True,
+                        "cellHeight": "sm",
+                        "footer": {
+                            "show": True,
+                            "reducer": ["sum"],
+                            "fields": "",
+                            "countRows": False,
+                        },
+                        "sortBy": [
+                            {"displayName": "USD MTD", "desc": True},
+                        ],
+                    },
+                    "transformations": [
+                        {
+                            "id": "labelsToFields",
+                            "options": {"mode": "columns", "keepLabels": ["dimension_ServiceName"]},
+                        },
+                        {
+                            "id": "merge",
+                            "options": {},
+                        },
+                        {
+                            "id": "organize",
+                            "options": {
+                                "excludeByName": {
+                                    "Time": True,
+                                    "__name__": True,
+                                    "currency": True,
+                                    "project": True,
+                                },
+                                "renameByName": {},
+                            },
+                        },
+                    ],
+                    "targets": [
+                        {
+                            **prometheus_aws_billing_by_service("A", instant=True),
+                            "format": "table",
+                            "datasource": PROMETHEUS,
+                        }
+                    ],
+                },
             ]
         )
-        y_after_stats = 18
+        y_after_stats = 37
 
     panels.extend(
         [
@@ -590,12 +794,13 @@ def build_dashboard(costs: dict) -> dict:
         "title": "Platform — Costs (EUR)",
         "description": (
             "Cross-project operator spend (EUR). Non-AWS from costs/monthly.json; "
-            "AWS from Prometheus (Cloud Provider billing scrape) × Frankfurter when aws_live."
+            "AWS total + by-service from Prometheus (Cloud Provider billing scrape) "
+            "× Frankfurter on totals when aws_live."
         ),
         "tags": ["platform", "costs", "eur", "shared-obs", "aws"],
         "timezone": "browser",
         "schemaVersion": 39,
-        "version": 3,
+        "version": 4,
         "refresh": "1h",
         "time": {"from": "now-30d", "to": "now"},
         "templating": templating,
