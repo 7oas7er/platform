@@ -2,15 +2,18 @@
 
 Owns the only zone rulesets for origin-verify, cache, redirects, rate-limit, and zone
 HTTPS/TLS settings (SSL Full strict, Always Use HTTPS, HSTS, min TLS 1.2, DNSSEC),
-plus Free security toggles (leaked-credentials detection; optional Bot Fight Mode).
+plus Free security toggles (leaked-credentials detection; optional Bot Fight Mode),
+plus zone **email auth** (SPF / DMARC) and optional **Cloudflare Email Routing**
+(inbound forward — not mailbox hosting).
 
-App repos must manage **DNS only** (Block Drop / Netrunner / DressMe / Homepage / FUBoot Tours Cloudflare roots).
+App repos must manage **DNS only** for app hosts (Block Drop / Netrunner / DressMe /
+Homepage / FUBoot Tours Cloudflare roots). Apex email TXT/MX lives here.
 
 ## Apply (local)
 
 ```bash
 export AWS_PROFILE=7oas7er-terraform
-export CLOUDFLARE_API_TOKEN=…   # Transform Rules, Cache Rules, WAF, Redirects, Zone Settings, DNS, Bot Management, Page Shield
+export CLOUDFLARE_API_TOKEN=…   # Transform Rules, Cache Rules, WAF, Redirects, Zone Settings, DNS, Bot Management, Page Shield; + Email Routing Addresses/Rules Write when enabling routing
 cd infra/terraform/shared-edge
 terraform init
 terraform plan
@@ -61,5 +64,27 @@ curl -sS -X PUT "https://api.cloudflare.com/client/v4/zones/${ZONE_ID:-701810fff
 Defaults **off** (`enable_bot_fight_mode = false`). Do not flip on without checking
 Grafana synthetics, curl probes, and `/api/scores` — Free BFM is zone-wide and
 cannot be skipped with WAF rules.
+
+### Email auth + optional Email Routing
+
+Defaults: apex SPF `v=spf1 -all`, DMARC `p=none` (optional `dmarc_rua`), **no MX**,
+routing **off**. No custom DKIM until a real outbound sender exists (inbound
+routing alone does not need one).
+
+**Enable routing (short path):**
+
+1. Put `cloudflare_account_id`, `email_routing_destination` (real external inbox —
+   placeholder only in `terraform.tfvars.example`), and `enable_email_routing = true`
+   in **local** `terraform.tfvars` (never commit secrets / personal addresses you
+   want private).
+2. `terraform apply` — creates Email Routing DNS (MX + routing SPF), destination
+   address, and catch-all / custom rules.
+3. **Verify destination:** open Cloudflare’s verification email → Status Verified
+   (`terraform output email_routing_destination_verified`).
+4. Send a test to a `@7oas7er.com` address; confirm it arrives at the destination.
+
+Token needs **Email Routing Addresses** + **Email Routing Rules** Write (plus
+existing DNS / Zone Settings). After reports look clean, harden DMARC
+`p=none` → `quarantine` → `reject` in `email.tf`.
 
 See [docs/MIGRATION.md](../../../docs/MIGRATION.md) to import from Block Drop state.

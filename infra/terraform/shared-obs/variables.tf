@@ -89,3 +89,35 @@ variable "grafana_aws_external_id" {
   default     = null
   nullable    = true
 }
+
+variable "enable_adaptive_metrics_drops" {
+  description = <<-EOT
+    Manage Adaptive Metrics DROP-only rules via grafana/grafana-adaptive-metrics.
+    Default false so normal shared-obs apply is unchanged. When true, requires
+    adaptive_metrics_access_token with adaptive-metrics-rules:read|write.
+    Does not enable Grafana Auto-apply; never loads recommendation rulesets.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "adaptive_metrics_access_token" {
+  description = <<-EOT
+    Grafana Cloud access policy token for Adaptive Metrics rules API
+    (scopes adaptive-metrics-rules:read and adaptive-metrics-rules:write).
+    Combined with prometheus_user_id as tenant:token for the AM provider.
+    Required when enable_adaptive_metrics_drops is true.
+  EOT
+  type        = string
+  sensitive   = true
+  default     = null
+  nullable    = true
+
+  validation {
+    condition = (
+      !var.enable_adaptive_metrics_drops
+      || (var.adaptive_metrics_access_token != null && var.adaptive_metrics_access_token != "")
+    )
+    error_message = "adaptive_metrics_access_token is required when enable_adaptive_metrics_drops is true."
+  }
+}

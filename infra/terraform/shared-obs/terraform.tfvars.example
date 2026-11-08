@@ -10,6 +10,11 @@ stack_service_account_token = "glsa_…"
 
 # github_plugin_version = "2.9.3"
 
+# Adaptive Metrics DROP-only rules (opt-in; Auto-apply stays OFF in the UI).
+# Token needs adaptive-metrics-rules:read|write. See README "Adaptive Metrics".
+# enable_adaptive_metrics_drops = true
+# adaptive_metrics_access_token = "glc_…"
+
 # AWS cost automation (Cloud Provider scrape AWS/Billing → Prometheus → EUR)
 # aws_profile = "7oas7er-terraform"
 # enable_aws_billing_costs = true

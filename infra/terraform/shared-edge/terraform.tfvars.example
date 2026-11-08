@@ -1,4 +1,5 @@
-# zone_id = "701810fff825f90c0eea671970a0cc9e"
+# zone_id   = "701810fff825f90c0eea671970a0cc9e"
+# zone_name = "7oas7er.com"
 
 # From each app's AWS envs/*/terraform.tfvars origin_verify_secret (never commit real values).
 blockdrop_stg_origin_verify_secret  = "replace-with-blockdrop-stg-secret"
@@ -19,3 +20,16 @@ fuboot_prod_origin_verify_secret    = "replace-with-fuboot-prod-secret"
 
 # Bot Fight Mode — leave false unless synthetics / API / curl probes are verified.
 # enable_bot_fight_mode = false
+
+# --- Email auth / optional Cloudflare Email Routing (inbound forward only) ---
+# Default: SPF reject-all + DMARC p=none (no MX). Leave routing off until ready.
+# enable_email_routing = false
+# dmarc_rua = ""   # optional; e.g. "reports@example.com" (no mailto:) once you have an inbox
+
+# To enable inbound forwarding (after destination is ready):
+# cloudflare_account_id       = "replace-with-cloudflare-account-id"
+# enable_email_routing        = true
+# email_routing_destination   = "you@example.com"   # placeholder — set Frank's real mailbox locally; do not invent/commit personal addresses
+# email_routing_catch_all     = true
+# email_routing_custom_addresses = ["contact@7oas7er.com"]
+# dmarc_rua                   = "you@example.com"   # optional rua; often same inbox you monitor

@@ -4,6 +4,56 @@ variable "zone_id" {
   default     = "701810fff825f90c0eea671970a0cc9e"
 }
 
+variable "zone_name" {
+  description = "Apex hostname for the Cloudflare zone (email DNS + Email Routing)."
+  type        = string
+  default     = "7oas7er.com"
+}
+
+variable "cloudflare_account_id" {
+  description = "Cloudflare account id (required when enable_email_routing is true; Email Routing destination addresses are account-scoped)."
+  type        = string
+  default     = ""
+}
+
+# --- Email auth / optional Email Routing -------------------------------------
+
+variable "enable_email_routing" {
+  description = <<-EOT
+    When false (default): apex SPF is v=spf1 -all (no senders) and no MX.
+    When true: Cloudflare Email Routing owns MX + routing SPF
+    (include:_spf.mx.cloudflare.net); destination/custom rules are created from
+    the email_routing_* vars. Destination must be verified via Cloudflare's
+    email before mail forwards. Not mailbox hosting — inbound forward only.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "email_routing_destination" {
+  description = "External mailbox that receives forwarded @zone mail. Placeholder in tfvars.example — set the real address locally; never commit it if sensitive."
+  type        = string
+  default     = ""
+}
+
+variable "email_routing_catch_all" {
+  description = "When Email Routing is enabled, create a catch-all rule forwarding any @zone address to email_routing_destination."
+  type        = bool
+  default     = true
+}
+
+variable "email_routing_custom_addresses" {
+  description = "Optional literal custom addresses to forward (e.g. contact@7oas7er.com). Ignored unless enable_email_routing is true."
+  type        = list(string)
+  default     = []
+}
+
+variable "dmarc_rua" {
+  description = "Optional DMARC aggregate report mailbox (address only, no mailto:). Empty = p=none without rua. Prefer an inbox you monitor; do not invent one."
+  type        = string
+  default     = ""
+}
+
 # Block Drop — must match that app's AWS envs/*/ origin_verify_secret.
 variable "blockdrop_stg_origin_verify_secret" {
   description = "X-Origin-Verify for blockdrop-stg.7oas7er.com."
