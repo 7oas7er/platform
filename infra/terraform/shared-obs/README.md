@@ -46,7 +46,7 @@ Dashboard panels query Prometheus:
 - **Total:** `max(aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"})` → USD→EUR via Frankfurter (`api.frankfurter.dev`)
 - **By service:** `max by (dimension_ServiceName) (…{dimension_ServiceName=~".+"})` (USD; Cloud Provider keeps the `dimension_` prefix)
 
-These are **EstimatedCharges** (billing alerts), not Cost Explorer / invoice. AWS updates a few times per day; scrape is every 5m. Tag / `Project=` splits remain a later Cost Explorer / CUR item (ADR 0002).
+These are **EstimatedCharges** (billing alerts), not Cost Explorer / invoice. AWS updates a few times per day; Cloud Provider scrape interval is **900s** (GMD cost trim — was 300s). Tag / `Project=` splits remain a later Cost Explorer / CUR item (ADR 0002).
 
 ### Non-AWS vendors (manual)
 
