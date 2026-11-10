@@ -32,8 +32,8 @@ resource "grafana_cloud_provider_aws_cloudwatch_scrape_job" "billing" {
 
   service {
     name = "AWS/Billing"
-    # Cloud Provider rejects 3600; allowed set matches app scrapes (e.g. 300).
-    scrape_interval_seconds = 300
+    # Cloud Provider rejects 3600; allowed set includes 300/900 (Phase 1 GMD trim).
+    scrape_interval_seconds = 900
 
     # EstimatedCharges publishes Currency (account total) and Currency+ServiceName
     # (per-service MTD). Leaving dimension filters unset scrapes all combinations
