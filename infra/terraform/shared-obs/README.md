@@ -72,9 +72,8 @@ Keep vs drop evidence (cross-repo PromQL audit): Project doc `docs/grafana-adapt
 1. Open the shared stack → **Adaptive Metrics** → **Overview**. Confirm Auto-apply is **disabled** for the default segment.
 2. Open **Metrics**. Apply **only** DROP recommendations / custom Drop rules for:
    - Probe first: `probe_all_duration_seconds_bucket`, `probe_dns_lookup_time_seconds`, `probe_failed_due_to_regex`, `probe_http_content_length`, `probe_http_redirects`, `probe_http_ssl`, `probe_http_uncompressed_body_length`, `probe_http_version`, `probe_http_last_modified_timestamp_seconds`, `probe_all_success_count`, `probe_all_success_sum`, plus prefixes `probe_ip_`, `probe_ssl_`, `probe_tls_` (Add new rule → Drop → match type prefix).
-   - Then prefix Drop `aws_lambda_` (scraped, unused in dashboards).
    - Then exact Drop `aws_cloudfront_bytes_downloaded_sum`, `aws_cloudfront_total_error_rate_average`, `aws_cloudfront_info`.
-3. **Do not** drop/aggregate: `probe_success`, `probe_duration_seconds`, `probe_http_duration_seconds`, `probe_http_status_code`, `aws_cloudfront_requests_sum`, `aws_cloudfront_4xx_error_rate_average`, `aws_cloudfront_5xx_error_rate_average`, `aws_cloudfront_origin_latency_average`, `aws_billing_estimated_charges_maximum`.
+3. **Do not** drop/aggregate: `probe_success`, `probe_duration_seconds`, `probe_http_duration_seconds`, `probe_http_status_code`, `aws_cloudfront_requests_sum`, `aws_cloudfront_4xx_error_rate_average`, `aws_cloudfront_5xx_error_rate_average`, `aws_cloudfront_origin_latency_average`, `aws_billing_estimated_charges_maximum`, **`aws_lambda_*`** (DressMe / app Lambda panels), DynamoDB / Bedrock scrape metrics used by app dashboards.
 4. Spot-check one app Production dashboard + **Platform — Costs (EUR)**.
 
 ### Optional IaC apply
