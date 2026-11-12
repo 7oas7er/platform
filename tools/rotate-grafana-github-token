@@ -1,0 +1,311 @@
+#!/usr/bin/env bash
+# Rotate Frank’s shared Grafana GitHub fine-grained PAT across local gitignored
+# grafana tfvars (same token in practice across apps).
+# Never prints the token. Does not update GitHub Environment secrets / CI.
+# Does not run terraform apply.
+#
+# Usage:
+#   ./tools/rotate-grafana-github-token
+#   GRAFANA_GITHUB_TOKEN=… ./tools/rotate-grafana-github-token
+#   ./tools/rotate-grafana-github-token --token '…'   # non-interactive; prefer env
+#
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: rotate-grafana-github-token [options] [DEVEL_ROOT]
+
+Update github_access_token in local gitignored grafana tfvars under sibling
+app checkouts (stg/prod / terraform.tfvars / *.auto.tfvars under
+infra/terraform/grafana).
+
+  --token TOKEN   New PAT (prefer GRAFANA_GITHUB_TOKEN env instead)
+  --dry-run       Report paths that would change; do not write
+  --roots LIST    Colon- or comma-separated absolute checkout paths
+  -h, --help      Show this help
+
+Token input (first wins):
+  1) --token
+  2) GRAFANA_GITHUB_TOKEN environment variable
+  3) Interactive hidden prompt (read -s)
+
+Checkout discovery (first wins):
+  1) --roots / GRAFANA_TFVARS_ROOTS (absolute paths)
+  2) DEVEL_ROOT or positional DEVEL_ROOT + default app slugs
+  3) Sibling dirs next to this platform clone
+  4) ~/SynologyDrive/private/devel + default app slugs
+
+Default app slugs: dressme block-drop netrunner homepage fuboot-tours
+Override with GRAFANA_TFVARS_APPS (space-separated).
+
+This script updates local tfvars only. GitHub Environment secret
+GRAFANA_GITHUB_TOKEN (CI / TF_VAR_github_access_token) is separate and is
+NOT updated here — rotate that in GitHub Settings → Environments if needed.
+
+Never echoes the token. Never commits tfvars. Does not apply terraform.
+EOF
+}
+
+DRY_RUN=0
+TOKEN=""
+ROOTS_OVERRIDE=""
+DEVEL_ROOT_ARG=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --token)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --token" >&2
+        exit 2
+      fi
+      TOKEN="$2"
+      shift 2
+      ;;
+    --token=*)
+      TOKEN="${1#--token=}"
+      shift
+      ;;
+    --roots)
+      if [[ $# -lt 2 ]]; then
+        echo "Missing value for --roots" >&2
+        exit 2
+      fi
+      ROOTS_OVERRIDE="$2"
+      shift 2
+      ;;
+    --roots=*)
+      ROOTS_OVERRIDE="${1#--roots=}"
+      shift
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      if [[ -n "$DEVEL_ROOT_ARG" ]]; then
+        echo "Unexpected argument: $1" >&2
+        usage >&2
+        exit 2
+      fi
+      DEVEL_ROOT_ARG="$1"
+      shift
+      ;;
+  esac
+done
+
+# Resolve token without echoing it.
+if [[ -z "$TOKEN" && -n "${GRAFANA_GITHUB_TOKEN:-}" ]]; then
+  TOKEN="$GRAFANA_GITHUB_TOKEN"
+fi
+if [[ -z "$TOKEN" ]]; then
+  if [[ ! -t 0 ]]; then
+    echo "No token: set GRAFANA_GITHUB_TOKEN, pass --token, or run on a TTY." >&2
+    exit 2
+  fi
+  printf 'New Grafana GitHub PAT (input hidden): ' >&2
+  # shellcheck disable=SC2162
+  read -s TOKEN
+  printf '\n' >&2
+fi
+if [[ -z "$TOKEN" ]]; then
+  echo "Empty token; aborting." >&2
+  exit 2
+fi
+
+DEFAULT_APPS=(dressme block-drop netrunner homepage fuboot-tours)
+if [[ -n "${GRAFANA_TFVARS_APPS:-}" ]]; then
+  # shellcheck disable=SC2206
+  DEFAULT_APPS=($GRAFANA_TFVARS_APPS)
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLATFORM_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PLATFORM_PARENT="$(cd "$PLATFORM_ROOT/.." && pwd)"
+
+split_roots() {
+  local raw="$1"
+  local part
+  raw="${raw//,/ }"
+  raw="${raw//:/ }"
+  # shellcheck disable=SC2086
+  for part in $raw; do
+    [[ -n "$part" ]] && printf '%s\n' "$part"
+  done
+}
+
+declare -a ROOTS=()
+
+if [[ -n "$ROOTS_OVERRIDE" ]]; then
+  while IFS= read -r r; do ROOTS+=("$r"); done < <(split_roots "$ROOTS_OVERRIDE")
+elif [[ -n "${GRAFANA_TFVARS_ROOTS:-}" ]]; then
+  while IFS= read -r r; do ROOTS+=("$r"); done < <(split_roots "$GRAFANA_TFVARS_ROOTS")
+else
+  DEVEL_ROOT="${DEVEL_ROOT_ARG:-${DEVEL_ROOT:-}}"
+  if [[ -z "$DEVEL_ROOT" ]]; then
+    sibling_hit=0
+    for app in "${DEFAULT_APPS[@]}"; do
+      if [[ -d "$PLATFORM_PARENT/$app" ]]; then
+        sibling_hit=1
+        break
+      fi
+    done
+    if [[ "$sibling_hit" -eq 1 ]]; then
+      DEVEL_ROOT="$PLATFORM_PARENT"
+    else
+      DEVEL_ROOT="$HOME/SynologyDrive/private/devel"
+    fi
+  fi
+  for app in "${DEFAULT_APPS[@]}"; do
+    ROOTS+=("$DEVEL_ROOT/$app")
+  done
+fi
+
+if [[ ${#ROOTS[@]} -eq 0 ]]; then
+  echo "No checkout roots configured." >&2
+  exit 2
+fi
+
+collect_tfvars() {
+  local root="$1"
+  local grafana="$root/infra/terraform/grafana"
+  if [[ ! -d "$grafana" ]]; then
+    return 0
+  fi
+  find "$grafana" -type f \( \
+      -name 'terraform.tfvars' \
+      -o -name '*.auto.tfvars' \
+      -o -name '*.tfvars' \
+    \) ! -name '*.example' ! -name '*.tfvars.example' -print 2>/dev/null | sort -u
+}
+
+# Apply or probe one file. Token arrives only via env (never printed).
+# Prints exactly one status word: updated | would | unchanged | error
+mutate_tfvars() {
+  local file="$1"
+  local dry="$2"
+  GRAFANA_ROTATE_TOKEN="$TOKEN" GRAFANA_ROTATE_DRY="$dry" python3 - "$file" <<'PY'
+import os, re, sys
+
+path = sys.argv[1]
+token = os.environ.get("GRAFANA_ROTATE_TOKEN", "")
+dry = os.environ.get("GRAFANA_ROTATE_DRY", "0") == "1"
+if not token:
+    print("error", flush=True)
+    sys.exit(1)
+
+escaped = token.replace("\\", "\\\\").replace('"', '\\"')
+assignment = f'github_access_token = "{escaped}"'
+line_re = re.compile(
+    r'^(\s*)(#\s*)?github_access_token\s*=\s*(?:"[^"]*"|\'[^\']*\'|\S+)\s*$'
+)
+
+with open(path, encoding="utf-8") as f:
+    raw = f.read()
+newline = "\r\n" if "\r\n" in raw else "\n"
+lines = raw.splitlines()
+
+found = False
+changed = False
+out_lines = []
+for line in lines:
+    m = line_re.match(line)
+    if not m:
+        out_lines.append(line)
+        continue
+    found = True
+    indent = m.group(1) or ""
+    new = indent + assignment
+    if new != line:
+        changed = True
+    out_lines.append(new)
+
+if not found:
+    out_lines.append(assignment)
+    changed = True
+
+if not changed:
+    print("unchanged", flush=True)
+    sys.exit(0)
+
+if dry:
+    print("would", flush=True)
+    sys.exit(0)
+
+# Always end with a newline for tfvars hygiene.
+body = newline.join(out_lines) + newline
+with open(path, "w", encoding="utf-8", newline="") as f:
+    f.write(body)
+print("updated", flush=True)
+PY
+}
+
+roots_existed=0
+updated=0
+unchanged=0
+would=0
+
+for root in "${ROOTS[@]}"; do
+  if [[ ! -d "$root" ]]; then
+    echo "skip (missing checkout): $root" >&2
+    continue
+  fi
+  roots_existed=$((roots_existed + 1))
+
+  mapfile -t files < <(collect_tfvars "$root")
+  if [[ ${#files[@]} -eq 0 ]]; then
+    echo "skip (no grafana tfvars): $root" >&2
+    continue
+  fi
+
+  for file in "${files[@]}"; do
+    status="$(mutate_tfvars "$file" "$DRY_RUN" || true)"
+    case "$status" in
+      updated)
+        echo "updated: $file"
+        updated=$((updated + 1))
+        ;;
+      would)
+        echo "would update: $file"
+        would=$((would + 1))
+        ;;
+      unchanged)
+        echo "unchanged: $file" >&2
+        unchanged=$((unchanged + 1))
+        ;;
+      *)
+        echo "error updating: $file" >&2
+        exit 1
+        ;;
+    esac
+  done
+done
+
+TOKEN=""
+unset TOKEN GRAFANA_ROTATE_TOKEN GRAFANA_ROTATE_DRY 2>/dev/null || true
+
+effective=0
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  effective=$would
+  echo "Dry-run done. would_update=$would unchanged=$unchanged roots_existed=$roots_existed" >&2
+else
+  effective=$updated
+  echo "Done. updated=$updated unchanged=$unchanged roots_existed=$roots_existed" >&2
+fi
+
+if [[ "$roots_existed" -eq 0 ]]; then
+  echo "No checkout roots existed." >&2
+  exit 1
+fi
+if [[ "$effective" -eq 0 ]]; then
+  exit 1
+fi
+exit 0

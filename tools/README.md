@@ -2,6 +2,22 @@
 
 Helpers that live in this repo but are **not** Terraform. They contain **no secrets** — only CLI glue.
 
+## Rotate Grafana GitHub PAT (local tfvars)
+
+Frank uses one shared fine-grained GitHub PAT as `github_access_token` in each app’s local grafana tfvars. After rotating the PAT on GitHub, push the new value into those gitignored files:
+
+```bash
+cd /path/to/platform
+./tools/rotate-grafana-github-token          # hidden prompt
+# or non-interactive:
+GRAFANA_GITHUB_TOKEN='…' ./tools/rotate-grafana-github-token
+./tools/rotate-grafana-github-token --dry-run
+```
+
+Default roots: sibling checkouts next to this `platform` clone, else `~/SynologyDrive/private/devel/{dressme,block-drop,netrunner,homepage,fuboot-tours}`. Override with a positional `DEVEL_ROOT`, `GRAFANA_TFVARS_ROOTS` / `--roots`, or `GRAFANA_TFVARS_APPS`. See `./tools/rotate-grafana-github-token --help`.
+
+Prints updated paths only (never the token). Does **not** apply Terraform and does **not** update the GitHub Environment secret `GRAFANA_GITHUB_TOKEN` used by CI — rotate that separately in GitHub Settings → Environments if plan CI needs the new PAT.
+
 ## Cloudflare Client-side security
 
 Until the Cloudflare Terraform provider exposes a zone-level Page Shield enable

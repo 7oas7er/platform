@@ -15,7 +15,7 @@ app repos ──► 7oas7er/platform   (never app ──► app)
 | [`infra/terraform/bootstrap`](infra/terraform/bootstrap/) | S3 state bucket for platform Terraform roots |
 | [`infra/terraform/shared-edge`](infra/terraform/shared-edge/) | Zone rulesets: origin-verify, cache, redirects, rate-limit, SSL/HTTPS/HSTS/DNSSEC, Free security toggles, email auth + optional Email Routing |
 | [`infra/terraform/shared-obs`](infra/terraform/shared-obs/) | Shared Grafana Infinity DS + GitHub plugin + platform cost dashboard (EUR) |
-| [`tools/`](tools/) | Non-TF helpers (Client-side security enable; Bitwarden ↔ tfvars) — see [`tools/README.md`](tools/README.md) |
+| [`tools/`](tools/) | Non-TF helpers (Client-side security; Bitwarden ↔ tfvars; Grafana GitHub PAT rotate) — see [`tools/README.md`](tools/README.md) |
 | [`.cursor/rules/`](.cursor/rules/) | Platform Cursor rules (`platform-core`) |
 | [`AGENTS.md`](AGENTS.md) | Definition of done for AI-assisted changes |
 | [`docs/architecture.md`](docs/architecture.md) | App vs shared-platform ownership |
@@ -107,7 +107,7 @@ terraform fmt -check -recursive infra/terraform
 cd infra/terraform/shared-edge && terraform init -backend=false && terraform validate
 ```
 
-Client-side security companion and Bitwarden tfvars import/export: [`tools/README.md`](tools/README.md).
+Client-side security companion, Bitwarden tfvars import/export, and Grafana GitHub PAT rotation: [`tools/README.md`](tools/README.md).
 
 ## Working with Cursor / agents
 
