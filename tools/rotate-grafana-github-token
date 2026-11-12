@@ -260,7 +260,11 @@ for root in "${ROOTS[@]}"; do
   fi
   roots_existed=$((roots_existed + 1))
 
-  mapfile -t files < <(collect_tfvars "$root")
+  # Bash 3.2-compatible (macOS /bin/bash); avoid mapfile (bash 4+).
+  files=()
+  while IFS= read -r file || [[ -n "$file" ]]; do
+    [[ -n "$file" ]] && files+=("$file")
+  done < <(collect_tfvars "$root")
   if [[ ${#files[@]} -eq 0 ]]; then
     echo "skip (no grafana tfvars): $root" >&2
     continue
