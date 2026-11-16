@@ -22,6 +22,7 @@ Act fast; assume compromise until rotated.
 | **Origin-verify** (per-app hosts in `shared-edge`) | Rotate via the app’s dual-accept AWS flow, then update platform `shared-edge` tfvars and apply. |
 | **Cloudflare API token** | Revoke in Cloudflare → create replacement → update local gitignored tfvars / env used for `shared-edge` apply. |
 | **Grafana** (`GRAFANA_*` / tokens in `shared-obs` tfvars) | Revoke/rotate in Grafana Cloud → update gitignored tfvars → `terraform plan` in `shared-obs`. |
+| **Grafana GitHub PAT** (`github_access_token` in app grafana tfvars) | Revoke/create fine-grained PAT on GitHub → run [`tools/rotate-grafana-github-token`](tools/rotate-grafana-github-token) for local tfvars → rotate GitHub Environment secret `GRAFANA_GITHUB_TOKEN` separately if CI plan needs it → local `terraform plan` in each app grafana root. |
 | **AWS** (unusual — prefer profile `7oas7er`) | Deactivate key → prefer OIDC/profile for any future CI plan role. |
 
 ## Related
