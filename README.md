@@ -1,6 +1,6 @@
 # 7oas7er platform
 
-Shared infrastructure for **isolated app repositories**. Apps (Block Drop, Netrunner, future products) each own their product and AWS site stack; this repo owns multi-tenant Cloudflare zone policy and shared Grafana Free objects.
+Shared infrastructure for **isolated app repositories**. Apps (Block Drop, Netrunner, DressMe, Homepage, FUBoot Tours, …) each own their product and AWS site stack; this repo owns multi-tenant Cloudflare zone policy and shared Grafana Free objects.
 
 **Architecture:** [docs/architecture.md](docs/architecture.md) · **ADRs:** [0001](docs/adr/0001-shared-edge-and-obs.md) · [0002 costs EUR](docs/adr/0002-platform-cost-dashboard.md) · **Agents:** [AGENTS.md](AGENTS.md) · **Security floor:** [docs/github-branch-protection.md](docs/github-branch-protection.md) · **Secrets:** [SECURITY.md](SECURITY.md) · **Maintenance:** [docs/maintenance.md](docs/maintenance.md) · **IaC policy:** [docs/iac-policy.md](docs/iac-policy.md) · **CodeQL:** [docs/codeql.md](docs/codeql.md) · **Tools:** [tools/](tools/) (Bitwarden tfvars helpers — no secrets in scripts)
 
