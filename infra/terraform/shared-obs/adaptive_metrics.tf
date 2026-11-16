@@ -26,11 +26,12 @@ locals {
   ]
 
   # Safe prefixes: no KEEP metric shares these prefixes.
+  # Do NOT drop aws_lambda_ — DressMe (and other app) env dashboards query
+  # Invocations/Errors/Throttles/Duration after the tag_Name selector fix.
   adaptive_metrics_drop_prefix = [
     "probe_ip_",
     "probe_ssl_",
     "probe_tls_",
-    "aws_lambda_",
   ]
 
   adaptive_metrics_api_key = local.adaptive_metrics_enabled ? format(
