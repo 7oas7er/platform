@@ -7,7 +7,7 @@ resource "cloudflare_ruleset" "origin_verify" {
   zone_id = local.zone_id
   # Keep name identical to live Cloudflare ruleset — renaming ForceNew-replaces the ruleset.
   name        = "Block Drop origin verify headers"
-  description = "Inject X-Origin-Verify so CloudFront accepts only Cloudflare-proxied traffic (Block Drop + Netrunner + DressMe + Homepage + FUBoot Tours hosts)."
+  description = "Inject X-Origin-Verify so CloudFront accepts only Cloudflare-proxied traffic (Block Drop + Netrunner + DressMe + Homepage + FUBoot Tours + long-way-home hosts)."
   kind        = "zone"
   phase       = "http_request_late_transform"
 
@@ -149,6 +149,34 @@ resource "cloudflare_ruleset" "origin_verify" {
           "X-Origin-Verify" = {
             operation = "set"
             value     = var.fuboot_prod_origin_verify_secret
+          }
+        }
+      }
+    },
+    {
+      ref         = "longwayhome_stg_origin_verify"
+      description = "Staging long-way-home origin verify"
+      expression  = "http.host eq \"longwayhome-stg.7oas7er.com\""
+      action      = "rewrite"
+      action_parameters = {
+        headers = {
+          "X-Origin-Verify" = {
+            operation = "set"
+            value     = var.longwayhome_stg_origin_verify_secret
+          }
+        }
+      }
+    },
+    {
+      ref         = "longwayhome_prod_origin_verify"
+      description = "Production long-way-home origin verify"
+      expression  = "http.host eq \"longwayhome.7oas7er.com\""
+      action      = "rewrite"
+      action_parameters = {
+        headers = {
+          "X-Origin-Verify" = {
+            operation = "set"
+            value     = var.longwayhome_prod_origin_verify_secret
           }
         }
       }

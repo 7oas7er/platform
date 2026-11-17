@@ -7,7 +7,32 @@ plus zone **email auth** (SPF / DMARC) and optional **Cloudflare Email Routing**
 (inbound forward — not mailbox hosting).
 
 App repos must manage **DNS only** for app hosts (Block Drop / Netrunner / DressMe /
-Homepage / FUBoot Tours Cloudflare roots). Apex email TXT/MX lives here.
+Homepage / FUBoot Tours / long-way-home Cloudflare roots). Apex email TXT/MX lives here.
+
+### Adding long-way-home hosts (local apply)
+
+After merging this ruleset change, fill **local** `terraform.tfvars` (gitignored) from the
+app’s AWS `origin_verify_secret` values — do **not** invent or commit secrets:
+
+| Hostname | Variable | Must match |
+|----------|----------|------------|
+| `longwayhome-stg.7oas7er.com` | `longwayhome_stg_origin_verify_secret` | `7oas7er/long-way-home` `envs/stg` `origin_verify_secret` |
+| `longwayhome.7oas7er.com` | `longwayhome_prod_origin_verify_secret` | `7oas7er/long-way-home` `envs/prod` `origin_verify_secret` |
+
+If prod AWS is not applied yet, still set `longwayhome_prod_origin_verify_secret` to the
+value you will use in `envs/prod` (generate once; reuse on prod apply). Plan should only
+add the two transform rules + one cache rule (no ruleset replace/`-/+`). Then:
+
+```bash
+export AWS_PROFILE=7oas7er-terraform   # or 7oas7er if that is your local convention
+export CLOUDFLARE_API_TOKEN=…
+cd infra/terraform/shared-edge
+terraform plan
+terraform apply
+```
+
+App Cloudflare DNS and Access stay in `7oas7er/long-way-home` (DNS root + Zero Trust
+dashboard docs) — not in this root.
 
 ## Apply (local)
 
