@@ -11,12 +11,12 @@
                     │  shared-obs (Grafana)   │
                     └───────────┬─────────────┘
                                 │
-     ┌──────────┬───────────────┼───────────────┬──────────┐
-     ▼          ▼               ▼               ▼          ▼
-┌──────────┐┌──────────┐┌──────────┐┌──────────┐┌─────────────┐
-│block-drop││netrunner ││ dressme  ││homepage  ││fuboot-tours │
-│  (app)   ││  (app)   ││  (app)   ││  (app)   ││   (app)     │
-└──────────┘└──────────┘└──────────┘└──────────┘└─────────────┘
+     ┌──────────┬───────────────┼───────────────┬──────────┬────────────────┐
+     ▼          ▼               ▼               ▼          ▼                ▼
+┌──────────┐┌──────────┐┌──────────┐┌──────────┐┌─────────────┐┌──────────────┐
+│block-drop││netrunner ││ dressme  ││homepage  ││fuboot-tours ││long-way-home │
+│  (app)   ││  (app)   ││  (app)   ││  (app)   ││   (app)     ││   (app)      │
+└──────────┘└──────────┘└──────────┘└──────────┘└─────────────┘└──────────────┘
 ```
 
 ## What lives where
@@ -34,7 +34,7 @@
 
 ## Same AWS account, separate tags
 
-Apps may share one AWS account. Always tag taggable resources with `Project=<slug>` (`blockdrop`, `netrunner`, `dressme`, `homepage`, `fuboot-tours`, `platform`, …) plus `Environment` so Cost Explorer / console filters stay sane.
+Apps may share one AWS account. Always tag taggable resources with `Project=<slug>` (`blockdrop`, `netrunner`, `dressme`, `homepage`, `fuboot-tours`, `long-way-home`, `platform`, …) plus `Environment` so Cost Explorer / console filters stay sane.
 
 ## New app checklist (platform-aware)
 
