@@ -2,7 +2,20 @@
 
 Target branches: **`staging`** and **`main`**. Default branch must be **`main`**.
 
-**Hard rule:** copying workflows / docs does **not** configure GitHub. Apply Settings with `gh` and **verify via API**. This repo must stay **public** on GitHub Free so rulesets, secret scanning, and Code scanning match Block Drop (private Free cannot enable rulesets).
+**Hard rule:** copying workflows / docs does **not** configure GitHub. Apply Settings with `gh` and **verify via API**. This repo (**platform**) stays **public** on GitHub Free so rulesets and GitHub-native scanners match Block Drop.
+
+## Scanners by visibility (shared guidance)
+
+Scanner choice follows **repo visibility**, not “match Block Drop blindly”:
+
+| Visibility | Secrets | SAST | Notes |
+|------------|---------|------|--------|
+| **Public** | GitHub **secret scanning** + **push protection** | In-repo **CodeQL** (advanced setup; default setup **off**) | Platform, Block Drop, and other public apps |
+| **Private** (no GHAS) | **gitleaks** inside Required CI | **Semgrep CE** inside Required CI | Do **not** buy GHAS solely for native private scanning unless Frank decides otherwise. Reference: [`7oas7er/long-way-home`](https://github.com/7oas7er/long-way-home) → [`docs/private-repo-github-floor.md`](https://github.com/7oas7er/long-way-home/blob/staging/docs/private-repo-github-floor.md) |
+
+**Platform is public** — keep GitHub-native secret scanning / push protection / CodeQL. Do **not** add gitleaks or Semgrep to this repo’s Required CI.
+
+Private apps still share the same ruleset / Dependabot / Actions-token floor where Pro unlocks it; only the **scanner mechanism** forks. Full private Settings path (Pro rulesets, admin `gh`, Free classic fallback): long-way-home’s private-repo floor doc above.
 
 ## Hard-required check
 
@@ -30,18 +43,19 @@ One ruleset on `refs/heads/staging` and `refs/heads/main`:
 4. Require status checks — **`Required CI`** only  
 5. Require signed commits — on (verified GPG; Frank’s key `413A590799A3CF31AB2C9ECDE27E5FD506790203` / `frank@schlesinger.com`)  
 
-## Repo security floor (must match Block Drop)
+## Repo security floor (this repo — public)
 
 | Control | Expected |
 |---------|----------|
 | Visibility | **Public** (GitHub Free) |
 | Default branch | **`main`** |
 | Dependabot **alerts** | **Enabled** |
-| Secret scanning + push protection | **Enabled** |
-| CodeQL **default** setup | **Off** |
+| Secret scanning + push protection | **Enabled** (GitHub-native; public path) |
+| CodeQL **advanced** / **default** setup | Advanced **on** (Actions); default **off** |
 | Branch ruleset `default` | **Active** on `main` + `staging` (incl. **require signed commits**) |
 | Actions `GITHUB_TOKEN` | **Read**; cannot approve PRs |
 | Issues / Wiki / Projects | **Off** |
+| gitleaks / Semgrep in Required CI | **No** — public → GitHub-native scanners |
 
 ## Apply / verify via `gh`
 
