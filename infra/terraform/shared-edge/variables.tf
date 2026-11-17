@@ -119,6 +119,19 @@ variable "fuboot_prod_origin_verify_secret" {
   sensitive   = true
 }
 
+# long-way-home — must match long-way-home AWS envs/*/ origin_verify_secret.
+variable "longwayhome_stg_origin_verify_secret" {
+  description = "X-Origin-Verify for longwayhome-stg.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
+variable "longwayhome_prod_origin_verify_secret" {
+  description = "X-Origin-Verify for longwayhome.7oas7er.com."
+  type        = string
+  sensitive   = true
+}
+
 variable "api_rate_limit_period_seconds" {
   description = "Counting window for /api/scores rate limiting (Free: must be 10)."
   type        = number
