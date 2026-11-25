@@ -64,13 +64,13 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-10`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1). Account total \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR; by-service panels use the `ServiceName` dimension (USD). Estimates only \u2014 AWS publishes a few times/day (not invoice settlement; ~hours lag). One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every 5m \u2014 no monthly.json edit. Tag/`Project=` splits need Cost Explorer / CUR later (ADR 0002)."
+        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-11`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1). Account total \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR; by-service panels use the `ServiceName` dimension (USD). Estimates only \u2014 AWS publishes a few times/day (not invoice settlement; ~hours lag). One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every 5m \u2014 no monthly.json edit. Tag/`Project=` splits need Cost Explorer / CUR later (ADR 0002)."
       }
     },
     {
       "id": 2,
       "type": "stat",
-      "title": "Non-AWS vendors \u2014 2026-10",
+      "title": "Non-AWS vendors \u2014 2026-11",
       "description": "Sum of operator-maintained rows in costs/monthly.json (AWS excluded).",
       "gridPos": {
         "h": 6,
@@ -130,7 +130,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"label\":\"Non-AWS vendors\",\"amount_eur\":0.0,\"month\":\"2026-10\"}]",
+          "data": "[{\"label\":\"Non-AWS vendors\",\"amount_eur\":29.419999999999998,\"month\":\"2026-11\"}]",
           "root_selector": "",
           "columns": [
             {
@@ -673,7 +673,7 @@
     {
       "id": 3,
       "type": "piechart",
-      "title": "Non-AWS by vendor \u2014 2026-10",
+      "title": "Non-AWS by vendor \u2014 2026-11",
       "gridPos": {
         "h": 10,
         "w": 9,
@@ -732,7 +732,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0},{\"vendor\":\"Claude\",\"amount_eur\":0.0},{\"vendor\":\"GitHub\",\"amount_eur\":0.0},{\"vendor\":\"Cloudflare\",\"amount_eur\":0.0},{\"vendor\":\"Other\",\"amount_eur\":0.0}]",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0},{\"vendor\":\"Claude\",\"amount_eur\":0.0},{\"vendor\":\"GitHub\",\"amount_eur\":3.65},{\"vendor\":\"Cloudflare\",\"amount_eur\":18.24},{\"vendor\":\"Apple\",\"amount_eur\":7.53},{\"vendor\":\"Other\",\"amount_eur\":0.0}]",
           "root_selector": "",
           "columns": [
             {
@@ -809,7 +809,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"month\":\"2026-10\",\"amount_eur\":0.0}]",
+          "data": "[{\"month\":\"2026-11\",\"amount_eur\":29.419999999999998}]",
           "root_selector": "",
           "columns": [
             {
@@ -835,7 +835,7 @@
     {
       "id": 5,
       "type": "table",
-      "title": "Vendor breakdown \u2014 2026-10",
+      "title": "Vendor breakdown \u2014 2026-11",
       "gridPos": {
         "h": 10,
         "w": 14,
@@ -895,7 +895,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"vendor\":\"GitHub\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Actions, Copilot, org billing\"},{\"vendor\":\"Cloudflare\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Zone / add-ons (Free \\u2248 0)\"},{\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"vendor\":\"GitHub\",\"amount_eur\":3.65,\"project\":\"shared\",\"notes\":\"Annual $48 prepaid 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Cloudflare\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Pro annual $240 since 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Apple\",\"amount_eur\":7.53,\"project\":\"shared\",\"notes\":\"Developer Program annual $99 ~2026-11-20 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
           "root_selector": "",
           "columns": [
             {
@@ -991,7 +991,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"month\":\"2026-10\",\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"month\":\"2026-10\",\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"month\":\"2026-10\",\"vendor\":\"GitHub\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Actions, Copilot, org billing\"},{\"month\":\"2026-10\",\"vendor\":\"Cloudflare\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Zone / add-ons (Free \\u2248 0)\"},{\"month\":\"2026-10\",\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "data": "[{\"month\":\"2026-11\",\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"month\":\"2026-11\",\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"month\":\"2026-11\",\"vendor\":\"GitHub\",\"amount_eur\":3.65,\"project\":\"shared\",\"notes\":\"Annual $48 prepaid 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Cloudflare\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Pro annual $240 since 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Apple\",\"amount_eur\":7.53,\"project\":\"shared\",\"notes\":\"Developer Program annual $99 ~2026-11-20 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
           "root_selector": "",
           "columns": [
             {
