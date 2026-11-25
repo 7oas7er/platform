@@ -4,31 +4,37 @@
   "aws_live": true,
   "months": [
     {
-      "month": "2026-10",
+      "month": "2026-11",
       "by_vendor": [
         {
           "vendor": "Cursor",
-          "amount_eur": 0,
+          "amount_eur": 54.73,
           "project": "shared",
-          "notes": "IDE / agent subscription"
+          "notes": "Monthly $60; USD→EUR Frankfurter 0.91216 (2026-11-24)"
         },
         {
           "vendor": "Claude",
-          "amount_eur": 0,
+          "amount_eur": 18.24,
           "project": "shared",
-          "notes": "Anthropic subscription or API"
+          "notes": "Monthly $20; USD→EUR Frankfurter 0.91216 (2026-11-24)"
         },
         {
           "vendor": "GitHub",
-          "amount_eur": 0,
+          "amount_eur": 3.65,
           "project": "shared",
-          "notes": "Actions, Copilot, org billing"
+          "notes": "Annual $48 prepaid 2026-11-17 ÷ 12; USD→EUR Frankfurter 0.91216 (2026-11-24)"
         },
         {
           "vendor": "Cloudflare",
-          "amount_eur": 0,
+          "amount_eur": 18.24,
           "project": "shared",
-          "notes": "Zone / add-ons (Free ≈ 0)"
+          "notes": "Pro annual $240 since 2026-11-17 ÷ 12; USD→EUR Frankfurter 0.91216 (2026-11-24)"
+        },
+        {
+          "vendor": "Apple",
+          "amount_eur": 7.53,
+          "project": "shared",
+          "notes": "Developer Program annual $99 ~2026-11-20 ÷ 12; USD→EUR Frankfurter 0.91216 (2026-11-24)"
         },
         {
           "vendor": "Other",
