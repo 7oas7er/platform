@@ -64,7 +64,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-11`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1). Account total \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR; by-service panels use the `ServiceName` dimension (USD). Estimates only \u2014 AWS publishes a few times/day (not invoice settlement; ~hours lag). One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every 5m \u2014 no monthly.json edit. Tag/`Project=` splits need Cost Explorer / CUR later (ADR 0002)."
+        "content": "**Currency: EUR (\u20ac).** Manual feed month: `2026-11`.\n\nNon-AWS vendors: edit `costs/monthly.json`, run `scripts/generate-costs-dashboard.py`, `terraform apply`.\n\n**AWS is automated:** Grafana Cloud Provider scrapes `AWS/Billing` `EstimatedCharges` into Prometheus (USD, us-east-1). Account total \u00d7 [Frankfurter](https://www.frankfurter.app/) USD\u2192EUR; by-service panels use the `ServiceName` dimension (USD). Estimates only \u2014 AWS publishes a few times/day (not invoice settlement; ~hours lag). One-time: enable **Receive CloudWatch Billing Alerts** in AWS Billing preferences. Scrape every **900s** (GMD trim); panels use `last_over_time(...[30m])` so Prometheus ~5m staleness does not flash No data between scrapes. No monthly.json edit. Tag/`Project=` splits need Cost Explorer / CUR later (ADR 0002)."
       }
     },
     {
@@ -212,7 +212,7 @@
       "targets": [
         {
           "refId": "USD",
-          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
+          "expr": "max(last_over_time(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"}[30m]))",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -346,7 +346,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
+          "expr": "max(last_over_time(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"}[30m]))",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -402,7 +402,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"})",
+          "expr": "max(last_over_time(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\"}[30m]))",
           "legendFormat": "AWS USD MTD",
           "range": true,
           "instant": false,
@@ -465,7 +465,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "expr": "max by (dimension_ServiceName) (last_over_time(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"}[30m]))",
           "legendFormat": "{{dimension_ServiceName}}",
           "range": true,
           "instant": false,
@@ -529,7 +529,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "expr": "max by (dimension_ServiceName) (last_over_time(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"}[30m]))",
           "legendFormat": "{{dimension_ServiceName}}",
           "range": false,
           "instant": true,
@@ -656,7 +656,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max by (dimension_ServiceName) (aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"})",
+          "expr": "max by (dimension_ServiceName) (last_over_time(aws_billing_estimated_charges_maximum{dimension_Currency=\"USD\",project=\"platform\",dimension_ServiceName=~\".+\"}[30m]))",
           "legendFormat": "{{dimension_ServiceName}}",
           "range": false,
           "instant": true,

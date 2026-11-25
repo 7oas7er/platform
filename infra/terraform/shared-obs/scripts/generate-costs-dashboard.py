@@ -35,15 +35,22 @@ MIXED = {"type": "datasource", "uid": "-- Mixed --"}
 # ServiceName → dimension_ServiceName (not currency / service_name).
 # Account total is Currency-only (no dimension_ServiceName); max() also works
 # because the account total is ≥ any single service.
+#
+# Scrape interval is 900s (GMD trim). Prometheus marks a series stale ~5m after the
+# last sample, so raw instant/range queries go empty for ~10m of every 15m cycle.
+# last_over_time(...[30m]) bridges that gap (≈2 scrape intervals) without raising
+# GetMetricData volume.
+AWS_BILLING_LOOKBACK = "30m"
 AWS_BILLING_TOTAL_PROMQL = (
-    'max(aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"})'
+    "max(last_over_time("
+    'aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"}'
+    f"[{AWS_BILLING_LOOKBACK}]))"
 )
 # By-service MTD estimates (ServiceName dimension). Exclude empty label noise.
 AWS_BILLING_BY_SERVICE_PROMQL = (
-    "max by (dimension_ServiceName) ("
+    "max by (dimension_ServiceName) (last_over_time("
     'aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform",'
-    'dimension_ServiceName=~".+"}'
-    ")"
+    f'dimension_ServiceName=~".+"}}[{AWS_BILLING_LOOKBACK}]))'
 )
 
 
@@ -234,8 +241,10 @@ def build_dashboard(costs: dict) -> dict:
             "use the `ServiceName` dimension (USD). Estimates only — AWS publishes "
             "a few times/day (not invoice settlement; ~hours lag). One-time: enable "
             "**Receive CloudWatch Billing Alerts** in AWS Billing preferences. "
-            "Scrape every 5m — no monthly.json edit. Tag/`Project=` splits need "
-            "Cost Explorer / CUR later (ADR 0002)."
+            "Scrape every **900s** (GMD trim); panels use `last_over_time(...[30m])` "
+            "so Prometheus ~5m staleness does not flash No data between scrapes. "
+            "No monthly.json edit. Tag/`Project=` splits need Cost Explorer / CUR "
+            "later (ADR 0002)."
         )
     else:
         about += "AWS live panels disabled (`aws_live: false`)."
