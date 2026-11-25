@@ -33,6 +33,8 @@ resource "grafana_cloud_provider_aws_cloudwatch_scrape_job" "billing" {
   service {
     name = "AWS/Billing"
     # Cloud Provider rejects 3600; allowed set includes 300/900 (Phase 1 GMD trim).
+    # Keep 900s — do not drop back to 300s for dashboard freshness; Prom ~5m
+    # staleness is bridged by last_over_time(...[30m]) on Platform Costs panels.
     scrape_interval_seconds = 900
 
     # EstimatedCharges publishes Currency (account total) and Currency+ServiceName
