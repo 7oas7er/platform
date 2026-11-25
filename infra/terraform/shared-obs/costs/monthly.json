@@ -8,15 +8,15 @@
       "by_vendor": [
         {
           "vendor": "Cursor",
-          "amount_eur": 0,
+          "amount_eur": 54.73,
           "project": "shared",
-          "notes": "IDE / agent subscription"
+          "notes": "Monthly $60; USD→EUR Frankfurter 0.91216 (2026-11-24)"
         },
         {
           "vendor": "Claude",
-          "amount_eur": 0,
+          "amount_eur": 18.24,
           "project": "shared",
-          "notes": "Anthropic subscription or API"
+          "notes": "Monthly $20; USD→EUR Frankfurter 0.91216 (2026-11-24)"
         },
         {
           "vendor": "GitHub",

@@ -130,7 +130,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"label\":\"Non-AWS vendors\",\"amount_eur\":29.419999999999998,\"month\":\"2026-11\"}]",
+          "data": "[{\"label\":\"Non-AWS vendors\",\"amount_eur\":102.39,\"month\":\"2026-11\"}]",
           "root_selector": "",
           "columns": [
             {
@@ -732,7 +732,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0},{\"vendor\":\"Claude\",\"amount_eur\":0.0},{\"vendor\":\"GitHub\",\"amount_eur\":3.65},{\"vendor\":\"Cloudflare\",\"amount_eur\":18.24},{\"vendor\":\"Apple\",\"amount_eur\":7.53},{\"vendor\":\"Other\",\"amount_eur\":0.0}]",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":54.73},{\"vendor\":\"Claude\",\"amount_eur\":18.24},{\"vendor\":\"GitHub\",\"amount_eur\":3.65},{\"vendor\":\"Cloudflare\",\"amount_eur\":18.24},{\"vendor\":\"Apple\",\"amount_eur\":7.53},{\"vendor\":\"Other\",\"amount_eur\":0.0}]",
           "root_selector": "",
           "columns": [
             {
@@ -809,7 +809,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"month\":\"2026-11\",\"amount_eur\":29.419999999999998}]",
+          "data": "[{\"month\":\"2026-11\",\"amount_eur\":102.39}]",
           "root_selector": "",
           "columns": [
             {
@@ -895,7 +895,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"vendor\":\"GitHub\",\"amount_eur\":3.65,\"project\":\"shared\",\"notes\":\"Annual $48 prepaid 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Cloudflare\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Pro annual $240 since 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Apple\",\"amount_eur\":7.53,\"project\":\"shared\",\"notes\":\"Developer Program annual $99 ~2026-11-20 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "data": "[{\"vendor\":\"Cursor\",\"amount_eur\":54.73,\"project\":\"shared\",\"notes\":\"Monthly $60; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Claude\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Monthly $20; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"GitHub\",\"amount_eur\":3.65,\"project\":\"shared\",\"notes\":\"Annual $48 prepaid 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Cloudflare\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Pro annual $240 since 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Apple\",\"amount_eur\":7.53,\"project\":\"shared\",\"notes\":\"Developer Program annual $99 ~2026-11-20 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
           "root_selector": "",
           "columns": [
             {
@@ -991,7 +991,7 @@
           "source": "inline",
           "format": "table",
           "parser": "backend",
-          "data": "[{\"month\":\"2026-11\",\"vendor\":\"Cursor\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"IDE / agent subscription\"},{\"month\":\"2026-11\",\"vendor\":\"Claude\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Anthropic subscription or API\"},{\"month\":\"2026-11\",\"vendor\":\"GitHub\",\"amount_eur\":3.65,\"project\":\"shared\",\"notes\":\"Annual $48 prepaid 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Cloudflare\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Pro annual $240 since 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Apple\",\"amount_eur\":7.53,\"project\":\"shared\",\"notes\":\"Developer Program annual $99 ~2026-11-20 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
+          "data": "[{\"month\":\"2026-11\",\"vendor\":\"Cursor\",\"amount_eur\":54.73,\"project\":\"shared\",\"notes\":\"Monthly $60; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Claude\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Monthly $20; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"GitHub\",\"amount_eur\":3.65,\"project\":\"shared\",\"notes\":\"Annual $48 prepaid 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Cloudflare\",\"amount_eur\":18.24,\"project\":\"shared\",\"notes\":\"Pro annual $240 since 2026-11-17 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Apple\",\"amount_eur\":7.53,\"project\":\"shared\",\"notes\":\"Developer Program annual $99 ~2026-11-20 \\u00f7 12; USD\\u2192EUR Frankfurter 0.91216 (2026-11-24)\"},{\"month\":\"2026-11\",\"vendor\":\"Other\",\"amount_eur\":0.0,\"project\":\"shared\",\"notes\":\"Misc vendors not listed above\"}]",
           "root_selector": "",
           "columns": [
             {
