@@ -1,0 +1,4 @@
+# All variables have defaults. Override only if the zone or region changes.
+# aws_region          = "eu-north-1"
+# zone_name           = "7oas7er.com"
+# mail_from_subdomain = "mail"
