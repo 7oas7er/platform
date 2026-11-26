@@ -51,7 +51,8 @@ resource "cloudflare_email_routing_dns" "zone" {
   count = var.enable_email_routing ? 1 : 0
 
   zone_id = local.zone_id
-  name    = var.zone_name
+  # No `name` for the zone apex: the API (POST /email/routing/dns) rejects the apex
+  # hostname with 422 "must be a subdomains of ..."; `name` is only for a subdomain.
 }
 
 # Destination mailbox (external). Cloudflare emails a verification link —

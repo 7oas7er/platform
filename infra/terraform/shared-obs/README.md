@@ -41,12 +41,12 @@ Uses the **same auth path as app CloudWatch scrape** (not a CloudWatch data sour
 
 5. **No account yet:** leave `grafana_aws_account_resource_id` unset; Terraform creates account `platform` + IAM role (fails if the AWS account is already registered under another name — then use step 4).
 
-Dashboard panels query Prometheus:
+Dashboard panels query Prometheus (lookback bridges Prom staleness between 900s scrapes):
 
-- **Total:** `max(aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"})` → USD→EUR via Frankfurter (`api.frankfurter.dev`)
-- **By service:** `max by (dimension_ServiceName) (…{dimension_ServiceName=~".+"})` (USD; Cloud Provider keeps the `dimension_` prefix)
+- **Total:** `max(last_over_time(aws_billing_estimated_charges_maximum{dimension_Currency="USD",project="platform"}[30m]))` → USD→EUR via Frankfurter (`api.frankfurter.dev`)
+- **By service:** `max by (dimension_ServiceName) (last_over_time(…{dimension_ServiceName=~".+"}[30m]))` (USD; Cloud Provider keeps the `dimension_` prefix)
 
-These are **EstimatedCharges** (billing alerts), not Cost Explorer / invoice. AWS updates a few times per day; Cloud Provider scrape interval is **900s** (GMD cost trim — was 300s). Tag / `Project=` splits remain a later Cost Explorer / CUR item (ADR 0002).
+These are **EstimatedCharges** (billing alerts), not Cost Explorer / invoice. AWS updates a few times per day; Cloud Provider scrape interval is **900s** (GMD cost trim — was 300s). Without `last_over_time`, Explore/`count()` only shows series for ~5m after each scrape (Prom default staleness), and cost stats flash **No data** for the other ~10m. Tag / `Project=` splits remain a later Cost Explorer / CUR item (ADR 0002).
 
 ### Non-AWS vendors (manual)
 
