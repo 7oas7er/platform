@@ -36,3 +36,13 @@ longwayhome_prod_origin_verify_secret = "replace-with-longwayhome-prod-secret"
 # email_routing_catch_all     = true
 # email_routing_custom_addresses = ["contact@7oas7er.com"]
 # dmarc_rua                   = "you@example.com"   # optional rua; often same inbox you monitor
+
+# Example: forward dressme@7oas7er.com (the sender and Reply-To of app invite mails, see shared-mail) to a real mailbox.
+# enable_email_routing           = true
+# cloudflare_account_id          = "..."                 # your Cloudflare account id (local only)
+# email_routing_destination      = "you@example.com"     # your real mailbox (local only, never commit)
+# email_routing_custom_addresses = ["dressme@7oas7er.com"]
+# email_routing_catch_all        = false
+# Turning routing on removes the apex reject-all SPF (cloudflare_dns_record.spf) and lets
+# Cloudflare Email Routing own the apex MX + SPF: read the terraform plan before applying.
+# Cloudflare then emails the destination a verification link: click it before mail forwards.
