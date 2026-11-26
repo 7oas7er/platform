@@ -27,6 +27,7 @@
 | Shared Grafana Infinity DS + GitHub **plugin** | platform `shared-obs` |
 | Platform cost overview (EUR; non-AWS feed + live AWS Billing total + by service) | platform `shared-obs` |
 | Adaptive Metrics DROP-only rules (opt-in; Auto-apply off) | platform `shared-obs` |
+| Outbound mail identity (SES domain identity, DKIM, MAIL FROM + DNS) | platform `shared-mail` (ADR 0003) |
 | App DNS (host CNAMEs) | each app `infra/terraform/cloudflare` |
 | App AWS (S3, CloudFront, IAM deploy/plan, Lambda…) | each app `infra/terraform/aws` |
 | App Grafana (folder, dashboard, synthetics, CW scrape, per-app GitHub DS) | each app `infra/terraform/grafana` |
