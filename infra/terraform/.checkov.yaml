@@ -17,3 +17,8 @@ skip-check:
   - CKV_AWS_21
   # Event notifications — not used; no downstream consumers of state-bucket events.
   - CKV2_AWS_62
+  # shared-mail SNS topic platform-mail-events: SES and CloudWatch can only publish to a CMK-encrypted topic,
+  # and the topic only carries bounce/complaint event metadata that is delivered as plain email to the operator.
+  # A CMK and its key policy (which also trips the IAM wildcard checks) add cost and failure modes without protecting
+  # anything. Revisit if a non-email consumer is added.
+  - CKV_AWS_26

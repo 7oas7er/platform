@@ -21,3 +21,21 @@ variable "mail_from_subdomain" {
   type        = string
   default     = "mail"
 }
+
+variable "alert_email" {
+  description = "Mailbox that receives SES bounce, complaint and reject notifications and reputation alarms. Set it in the local terraform.tfvars (never commit a personal address). Empty creates the topic without a subscriber."
+  type        = string
+  default     = ""
+}
+
+variable "bounce_rate_alarm" {
+  description = "Account bounce-rate alarm threshold as a fraction (0.02 = 2%). SES reviews accounts at 5% and pauses sending at 10%."
+  type        = number
+  default     = 0.02
+}
+
+variable "complaint_rate_alarm" {
+  description = "Account complaint-rate alarm threshold as a fraction (0.0005 = 0.05%). SES reviews accounts at 0.1% and pauses sending at 0.5%."
+  type        = number
+  default     = 0.0005
+}

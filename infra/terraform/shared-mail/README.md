@@ -20,6 +20,10 @@ Then wait until `dkim_status` is `SUCCESS` (DNS propagation, usually minutes):
 terraform refresh && terraform output dkim_status
 ```
 
+## Bounces, complaints and alerts
+
+SES keeps its account-level suppression list on for bounces and complaints. This stack adds a configuration set (`platform-transactional`, outputs `configuration_set_name`) whose BOUNCE, COMPLAINT and REJECT events go to the SNS topic `platform-mail-events`, plus CloudWatch alarms on the account bounce rate (default 2%) and complaint rate (default 0.05%) that notify the same topic. Set `alert_email = "you@example.com"` in the local, gitignored `terraform.tfvars`, apply, then **confirm the subscription** in the mail AWS sends. Apps must send with the configuration set (Cognito: `configuration_set`); mail sent without it is still protected by suppression and the account alarms, but its events are not published.
+
 ## SES production access (manual, once)
 
 A new SES account is in the sandbox in each region: it can only send to verified addresses. In the AWS console (region eu-north-1): SES, Account dashboard, Request production access. Mail type: Transactional. Describe it as invitation emails for a small private app (a few messages a month, each sent to a person the operator invited, no marketing, bounces and complaints handled by SES). Approval usually takes about a day. Do not point an app at this identity (for Cognito: `cognito_ses_source_arn`) before it is granted.
